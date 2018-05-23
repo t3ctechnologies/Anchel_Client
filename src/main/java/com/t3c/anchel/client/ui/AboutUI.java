@@ -135,7 +135,6 @@ public class AboutUI
 			public void actionPerformed(ActionEvent e)
 			{
 				frmAbout.dispose();
-				new DashboardUI();
 			}
 		});
 		btnOk.setBounds(210, 360, 89, 23);

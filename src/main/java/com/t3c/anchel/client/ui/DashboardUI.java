@@ -1,9 +1,9 @@
 package com.t3c.anchel.client.ui;
 
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -20,49 +20,59 @@ import javax.swing.SwingConstants;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
+import com.t3c.anchel.client.model.common.ResponseObject;
+import com.t3c.anchel.client.model.dashboard.FileDetailsDTO;
+import com.t3c.anchel.client.utils.consts.ApplicationConstants;
 import com.t3c.anchel.client.wsclient.controller.dashboard.DashboardController;
 
 public class DashboardUI
 {
 
-	private JFrame frame;
+	private JFrame			frame;
+	List<FileDetailsDTO>	myFilelist	= null;
+	private String			username;
 
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args)
-	{
-		EventQueue.invokeLater(new Runnable()
-		{
-			public void run()
-			{
-				try
-				{
-					DashboardUI window = new DashboardUI();
-					window.frame.setVisible(true);
-				}
-				catch (Exception e)
-				{
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+	// public static void main(String[] args)
+	// {
+	// EventQueue.invokeLater(new Runnable()
+	// {
+	// public void run()
+	// {
+	// try
+	// {
+	// DashboardUI window = new DashboardUI();
+	// window.frame.setVisible(true);
+	// }
+	// catch (Exception e)
+	// {
+	// e.printStackTrace();
+	// }
+	// }
+	// });
+	// }
 
 	/**
 	 * Create the application.
 	 */
-	public DashboardUI()
+	public DashboardUI(String username)
 	{
+		this.username = username;
+		getData(username);
 		initialize();
-		bindData();
 		frame.setVisible(true);
 	}
 
-	private void bindData()
+	/**
+	 * This method is used to get the data from Backend
+	 */
+	private void getData(String username)
 	{
-		new DashboardController().getMyFiles();
-		
+		ResponseObject resp = new DashboardController().getMyFiles(username);
+		if (resp.getStatus().equalsIgnoreCase(ApplicationConstants.getSuccess()))
+		{
+			myFilelist = (List<FileDetailsDTO>) resp.getResponseObject();
+		}
+
 	}
 
 	/**
@@ -203,26 +213,26 @@ public class DashboardUI
 		tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("Root")
 		{
 			{
-				DefaultMutableTreeNode node_1;
-				DefaultMutableTreeNode node_2;
-				node_1 = new DefaultMutableTreeNode("My Files");
-				node_2 = new DefaultMutableTreeNode("New folder");
-				node_2.add(new DefaultMutableTreeNode("Dockerfile"));
-				node_1.add(node_2);
-				node_1.add(new DefaultMutableTreeNode("images1.jpeg"));
-				node_1.add(new DefaultMutableTreeNode("icon.png"));
-				node_2 = new DefaultMutableTreeNode("New folder 2");
-				node_2.add(new DefaultMutableTreeNode("httpd.conf"));
-				node_2.add(new DefaultMutableTreeNode("httpd(2).conf"));
-				node_2.add(new DefaultMutableTreeNode("Sample.png"));
-				node_2.add(new DefaultMutableTreeNode("newDocument.doc"));
-				node_1.add(node_2);
-				add(node_1);
-				node_1 = new DefaultMutableTreeNode("Shared Files");
-				node_1.add(new DefaultMutableTreeNode("notes.txt"));
-				node_1.add(new DefaultMutableTreeNode("sample.txt"));
-				node_1.add(new DefaultMutableTreeNode("files.zip"));
-				add(node_1);
+
+				DefaultMutableTreeNode filesList = new DefaultMutableTreeNode("My Files");
+				for (FileDetailsDTO dto : myFilelist)
+				{
+					filesList.add(new DefaultMutableTreeNode(dto.getName()));
+				}
+				// filesList.add(new DefaultMutableTreeNode("Dockerfile"));
+				// filesList.add(new DefaultMutableTreeNode("images1.jpeg"));
+				// filesList.add(new DefaultMutableTreeNode("icon.png"));
+				// filesList.add(new DefaultMutableTreeNode("file2.json"));
+				// filesList.add(new DefaultMutableTreeNode("httpd.conf"));
+				// filesList.add(new DefaultMutableTreeNode("httpd(2).conf"));
+				// filesList.add(new DefaultMutableTreeNode("Sample.png"));
+				// filesList.add(new DefaultMutableTreeNode("newDocument.doc"));
+				add(filesList);
+				filesList = new DefaultMutableTreeNode("Shared Files");
+				filesList.add(new DefaultMutableTreeNode("notes.txt"));
+				filesList.add(new DefaultMutableTreeNode("sample.txt"));
+				filesList.add(new DefaultMutableTreeNode("files.zip"));
+				add(filesList);
 			}
 		}));
 		tree.setBounds(10, 40, 588, 307);

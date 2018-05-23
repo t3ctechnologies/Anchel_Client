@@ -10,14 +10,14 @@ public class DashboardController
 {
 	final static Logger OUT = Logger.getLogger(DashboardController.class);
 
-	public ResponseObject getMyFiles()
+	public ResponseObject getMyFiles(String username)
 	{
-		OUT.info("Getting My Files started.");
+		OUT.info("Getting My Files for user :" + username + " started.");
 		ResponseObject response = null;
 		try
 		{
 			response = new ResponseObject();
-			response.setResponseObject(new DashboardService().getMyFiles());
+			response.setResponseObject(new DashboardService().getMyFiles(username));
 			response.setStatus(ApplicationConstants.getSuccess());
 		}
 		catch (Exception e)

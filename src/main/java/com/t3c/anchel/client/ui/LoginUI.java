@@ -27,6 +27,7 @@ public class LoginUI
 	private JTextField	textField_1;
 	private JTextField	textField_2;
 	private JPanel		panel;
+	private String		username	= null;
 
 	/**
 	 * Launch the application.
@@ -147,7 +148,7 @@ public class LoginUI
 		{
 			public void actionPerformed(ActionEvent e)
 			{
-				String username = textField.getText().trim();
+				username = textField.getText().trim();
 				String password = textField_1.getText().trim();
 				String url = textField_2.getText().trim();
 
@@ -169,7 +170,7 @@ public class LoginUI
 					if (status != null && status.getStatus() != null)
 					{
 						frmLogin.dispose();
-						new DashboardUI();
+						new DashboardUI(username);
 					}
 					else
 					{

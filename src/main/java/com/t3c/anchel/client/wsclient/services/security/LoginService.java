@@ -10,39 +10,44 @@ import org.apache.log4j.Logger;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
+import com.t3c.anchel.client.utils.consts.ApplicationConstants;
 import com.t3c.anchel.client.wsclient.controller.auth.UserSessionCache;
 
 public class LoginService
 {
-	final static Logger log = Logger.getLogger(LoginService.class);
+	final static Logger OUT = Logger.getLogger(LoginService.class);
 
 	public Object authenticate(String username, String password, String url)
 	{
-		log.debug("Authencation using username :" + username + " URL :" + url);
-		UserSessionCache cache = new UserSessionCache();
+		OUT.debug("Authencation using username :" + username + " URL :" + url);
 		StringBuilder urlBuffer = new StringBuilder();
 		urlBuffer.append(url);
-		urlBuffer.append("/linshare/webservice/rest/user/v2/authentication/authorized");
+		urlBuffer.append(ApplicationConstants.LOGIN);
 		String authString = username + ":" + password;
 		String authStringEnc = Base64.getEncoder().encodeToString(authString.getBytes());
-		log.debug("Base64 encoded auth string: " + authStringEnc);
+		OUT.debug("Base64 encoded auth string: " + authStringEnc);
 		Client restClient = Client.create();
 		WebResource webResource = restClient.resource(urlBuffer.toString());
 		ClientResponse resp = webResource.accept("application/json").header("Authorization", "Basic " + authStringEnc).get(ClientResponse.class);
 		if (resp.getStatus() != 200)
 		{
-			log.error("Unable to connect to the server");
+			OUT.error("Unable to connect to the server");
 		}
 		String sessionDetails = getSessionDetails(resp.getHeaders());
-		if(sessionDetails == null)
+		if (sessionDetails == null)
 		{
-			log.error("Unable to authenticate!");
+			OUT.error("Unable to authenticate!");
 			return new String("Unable to authenticate!");
 		}
-		cache.doInsert(sessionDetails);
+		UserSessionCache.getInstance().doInsert(username + "_base", authStringEnc);
+		UserSessionCache.getInstance().doInsert(username + "_url", url);
 
 		String output = resp.getEntity(String.class);
-		log.debug("response: " + output);
+		OUT.debug("response: " + output);
+		if (restClient != null)
+		{
+			restClient.destroy();
+		}
 		return output;
 	}
 

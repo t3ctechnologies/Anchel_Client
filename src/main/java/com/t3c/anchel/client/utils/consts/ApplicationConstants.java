@@ -2,12 +2,12 @@ package com.t3c.anchel.client.utils.consts;
 
 public class ApplicationConstants
 {
-	private static final String	SUCCESS			= "SUCCESS";
-	private static final String	FAILURE			= "FAILURE";
+	private static final String	SUCCESS	= "SUCCESS";
+	private static final String	FAILURE	= "FAILURE";
 
-	// Public variables
-	public static final String	USER_SESSION_ID	= "user_sesssion_id";
-	public static final String	BASE_URL	= "BASE_URL";
+	// API's
+	public static final String	LOGIN	= "/linshare/webservice/rest/user/v2/authentication/authorized";
+	public static final String	MY_FILE	= "/linshare/webservice/rest/user/v2/documents";
 
 	public static String getSuccess()
 	{
