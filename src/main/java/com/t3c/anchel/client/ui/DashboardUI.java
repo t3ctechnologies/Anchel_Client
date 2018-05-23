@@ -19,9 +19,8 @@ import javax.swing.JTree;
 import javax.swing.SwingConstants;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import javax.ws.rs.core.NewCookie;
 
-public class Dashboard
+public class DashboardUI
 {
 
 	private JFrame frame;
@@ -37,7 +36,7 @@ public class Dashboard
 			{
 				try
 				{
-					Dashboard window = new Dashboard();
+					DashboardUI window = new DashboardUI();
 					window.frame.setVisible(true);
 				}
 				catch (Exception e)
@@ -51,7 +50,7 @@ public class Dashboard
 	/**
 	 * Create the application.
 	 */
-	public Dashboard()
+	public DashboardUI()
 	{
 		initialize();
 		frame.setVisible(true);
@@ -82,10 +81,12 @@ public class Dashboard
 		mnFile.add(separator);
 
 		JMenuItem mntmExit = new JMenuItem("Exit");
-		mntmExit.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+		mntmExit.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
 				frame.dispose();
-				new Login();
+				new LoginUI();
 			}
 		});
 		mnFile.add(mntmExit);
@@ -120,7 +121,7 @@ public class Dashboard
 			public void actionPerformed(ActionEvent e)
 			{
 				frame.dispose();
-				new About();
+				new AboutUI();
 			}
 		});
 		mnHelp.add(mntmNewMenuItem_1);
@@ -131,22 +132,26 @@ public class Dashboard
 		frame.getContentPane().add(toolBar);
 
 		JButton btnNewButton = new JButton("");
-		btnNewButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				int dialogResult = JOptionPane.showConfirmDialog (null, "Are you sure you want to disconnect the current connection?","Warning",JOptionPane.WARNING_MESSAGE);
-				if(dialogResult == JOptionPane.YES_OPTION){
-					  frame.dispose();
-					  new Login();
+		btnNewButton.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				int dialogResult = JOptionPane.showConfirmDialog(null, "Are you sure you want to disconnect the current connection?", "Warning",
+						JOptionPane.WARNING_MESSAGE);
+				if (dialogResult == JOptionPane.YES_OPTION)
+				{
+					frame.dispose();
+					new LoginUI();
 				}
 			}
 		});
 		btnNewButton.setToolTipText("Disconnect Current Server");
-		btnNewButton.setIcon(new ImageIcon(Dashboard.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/disconnectServer.png")));
+		btnNewButton.setIcon(new ImageIcon(DashboardUI.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/disconnectServer.png")));
 		toolBar.add(btnNewButton);
 
 		JButton btnNewButton_1 = new JButton("");
 		btnNewButton_1.setToolTipText("Refresh");
-		btnNewButton_1.setIcon(new ImageIcon(Dashboard.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/refresh.png")));
+		btnNewButton_1.setIcon(new ImageIcon(DashboardUI.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/refresh.png")));
 		toolBar.add(btnNewButton_1);
 
 		JLabel label = new JLabel("  ");
@@ -159,17 +164,17 @@ public class Dashboard
 
 		JButton btnNewButton_2 = new JButton("");
 		btnNewButton_2.setToolTipText("Download");
-		btnNewButton_2.setIcon(new ImageIcon(Dashboard.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/download.png")));
+		btnNewButton_2.setIcon(new ImageIcon(DashboardUI.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/download.png")));
 		toolBar.add(btnNewButton_2);
 
 		JButton btnNewButton_3 = new JButton("");
 		btnNewButton_3.setToolTipText("Rename");
-		btnNewButton_3.setIcon(new ImageIcon(Dashboard.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/rename.png")));
+		btnNewButton_3.setIcon(new ImageIcon(DashboardUI.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/rename.png")));
 		toolBar.add(btnNewButton_3);
 
 		JButton btnNewButton_4 = new JButton("");
 		btnNewButton_4.setToolTipText("Delete");
-		btnNewButton_4.setIcon(new ImageIcon(Dashboard.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/delete.png")));
+		btnNewButton_4.setIcon(new ImageIcon(DashboardUI.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/delete.png")));
 		toolBar.add(btnNewButton_4);
 
 		JLabel label_1 = new JLabel("  ");
@@ -182,7 +187,7 @@ public class Dashboard
 
 		JButton btnNewButton_5 = new JButton("");
 		btnNewButton_5.setToolTipText("Search");
-		btnNewButton_5.setIcon(new ImageIcon(Dashboard.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/search.png")));
+		btnNewButton_5.setIcon(new ImageIcon(DashboardUI.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/search.png")));
 		toolBar.add(btnNewButton_5);
 
 		JTree tree = new JTree();

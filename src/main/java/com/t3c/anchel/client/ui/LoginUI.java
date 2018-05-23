@@ -19,7 +19,7 @@ import javax.swing.border.TitledBorder;
 import com.t3c.anchel.client.model.common.ResponseObject;
 import com.t3c.anchel.client.wsclient.controller.auth.LoginController;
 
-public class Login
+public class LoginUI
 {
 
 	private JFrame		frmLogin;
@@ -39,7 +39,7 @@ public class Login
 			{
 				try
 				{
-					Login window = new Login();
+					LoginUI window = new LoginUI();
 					window.frmLogin.setVisible(true);
 				}
 				catch (Exception e)
@@ -53,7 +53,7 @@ public class Login
 	/**
 	 * Create the application.
 	 */
-	public Login()
+	public LoginUI()
 	{
 		initialize();
 		frmLogin.setVisible(true);
@@ -89,6 +89,14 @@ public class Login
 		mnHelp.add(mntmNewMenuItem);
 
 		JMenuItem mntmHelp = new JMenuItem("Help");
+		mntmHelp.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				frmLogin.dispose();
+				new AboutUI();
+			}
+		});
 		mnHelp.add(mntmHelp);
 		frmLogin.getContentPane().setLayout(null);
 
@@ -126,7 +134,7 @@ public class Login
 		textField_2.setColumns(10);
 
 		JLabel lblNewLabel = new JLabel("");
-		lblNewLabel.setIcon(new ImageIcon(Login.class.getResource("/com/t3c/anchel/client/utils/images/login/logo.png")));
+		lblNewLabel.setIcon(new ImageIcon(LoginUI.class.getResource("/com/t3c/anchel/client/utils/images/login/logo.png")));
 		lblNewLabel.setBounds(200, 11, 335, 145);
 		panel.add(lblNewLabel);
 
@@ -158,10 +166,10 @@ public class Login
 				else
 				{
 					ResponseObject status = new LoginController().isAuthorised(username, password, url);
-					if (status != null)
+					if (status != null && status.getStatus() != null)
 					{
 						frmLogin.dispose();
-						new Dashboard();
+						new DashboardUI();
 					}
 					else
 					{
