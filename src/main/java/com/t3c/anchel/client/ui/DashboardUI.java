@@ -20,6 +20,8 @@ import javax.swing.SwingConstants;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
+import com.t3c.anchel.client.wsclient.controller.dashboard.DashboardController;
+
 public class DashboardUI
 {
 
@@ -53,7 +55,14 @@ public class DashboardUI
 	public DashboardUI()
 	{
 		initialize();
+		bindData();
 		frame.setVisible(true);
+	}
+
+	private void bindData()
+	{
+		new DashboardController().getMyFiles();
+		
 	}
 
 	/**

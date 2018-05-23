@@ -33,7 +33,6 @@ public class LoginService
 		{
 			log.error("Unable to connect to the server");
 		}
-		// MultivaluedMap<String, String> headder = ;
 		String sessionDetails = getSessionDetails(resp.getHeaders());
 		if(sessionDetails == null)
 		{
