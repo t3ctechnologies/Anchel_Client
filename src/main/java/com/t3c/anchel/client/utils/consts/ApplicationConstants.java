@@ -8,7 +8,8 @@ public class ApplicationConstants
 	// API's
 	public static final String	LOGIN	= "/linshare/webservice/rest/user/v2/authentication/authorized";
 	public static final String	MY_FILE	= "/linshare/webservice/rest/user/v2/documents";
-
+	public static final String RECEIVED_FILE	= "/linshare/webservice/rest/user/v2/received_shares";
+	
 	public static String getSuccess()
 	{
 		return SUCCESS;

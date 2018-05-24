@@ -25,12 +25,12 @@ import com.t3c.anchel.client.model.dashboard.FileDetailsDTO;
 import com.t3c.anchel.client.utils.consts.ApplicationConstants;
 import com.t3c.anchel.client.wsclient.controller.dashboard.DashboardController;
 
-public class DashboardUI
-{
+public class DashboardUI {
 
-	private JFrame			frame;
-	List<FileDetailsDTO>	myFilelist	= null;
-	private String			username;
+	private JFrame frame;
+	List<FileDetailsDTO> myFilelist = null;
+	List<FileDetailsDTO> myReceivedlist = null;
+	private String username;
 
 	// public static void main(String[] args)
 	// {
@@ -54,8 +54,7 @@ public class DashboardUI
 	/**
 	 * Create the application.
 	 */
-	public DashboardUI(String username)
-	{
+	public DashboardUI(String username) {
 		this.username = username;
 		getData(username);
 		initialize();
@@ -65,21 +64,23 @@ public class DashboardUI
 	/**
 	 * This method is used to get the data from Backend
 	 */
-	private void getData(String username)
-	{
-		ResponseObject resp = new DashboardController().getMyFiles(username);
-		if (resp.getStatus().equalsIgnoreCase(ApplicationConstants.getSuccess()))
-		{
+	private void getData(String username) {
+		ResponseObject resp = null;
+		resp = new DashboardController().getMyFiles(username);
+		if (resp.getStatus().equalsIgnoreCase(ApplicationConstants.getSuccess())) {
 			myFilelist = (List<FileDetailsDTO>) resp.getResponseObject();
 		}
+		resp = new DashboardController().getReceivedFiles(username);
+		if (resp.getStatus().equalsIgnoreCase(ApplicationConstants.getSuccess())) {
+			myReceivedlist = (List<FileDetailsDTO>) resp.getResponseObject();
 
+		}
 	}
 
 	/**
 	 * Initialize the contents of the frame.
 	 */
-	private void initialize()
-	{
+	private void initialize() {
 		frame = new JFrame();
 		frame.setBounds(100, 100, 624, 419);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -100,10 +101,8 @@ public class DashboardUI
 		mnFile.add(separator);
 
 		JMenuItem mntmExit = new JMenuItem("Exit");
-		mntmExit.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
+		mntmExit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				frame.dispose();
 				new LoginUI();
 			}
@@ -135,10 +134,8 @@ public class DashboardUI
 		mnHelp.add(mntmContents);
 
 		JMenuItem mntmNewMenuItem_1 = new JMenuItem("About");
-		mntmNewMenuItem_1.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
+		mntmNewMenuItem_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				frame.dispose();
 				new AboutUI();
 			}
@@ -151,26 +148,26 @@ public class DashboardUI
 		frame.getContentPane().add(toolBar);
 
 		JButton btnNewButton = new JButton("");
-		btnNewButton.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				int dialogResult = JOptionPane.showConfirmDialog(null, "Are you sure you want to disconnect the current connection?", "Warning",
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int dialogResult = JOptionPane.showConfirmDialog(null,
+						"Are you sure you want to disconnect the current connection?", "Warning",
 						JOptionPane.WARNING_MESSAGE);
-				if (dialogResult == JOptionPane.YES_OPTION)
-				{
+				if (dialogResult == JOptionPane.YES_OPTION) {
 					frame.dispose();
 					new LoginUI();
 				}
 			}
 		});
 		btnNewButton.setToolTipText("Disconnect Current Server");
-		btnNewButton.setIcon(new ImageIcon(DashboardUI.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/disconnectServer.png")));
+		btnNewButton.setIcon(new ImageIcon(
+				DashboardUI.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/disconnectServer.png")));
 		toolBar.add(btnNewButton);
 
 		JButton btnNewButton_1 = new JButton("");
 		btnNewButton_1.setToolTipText("Refresh");
-		btnNewButton_1.setIcon(new ImageIcon(DashboardUI.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/refresh.png")));
+		btnNewButton_1.setIcon(new ImageIcon(
+				DashboardUI.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/refresh.png")));
 		toolBar.add(btnNewButton_1);
 
 		JLabel label = new JLabel("  ");
@@ -183,17 +180,20 @@ public class DashboardUI
 
 		JButton btnNewButton_2 = new JButton("");
 		btnNewButton_2.setToolTipText("Download");
-		btnNewButton_2.setIcon(new ImageIcon(DashboardUI.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/download.png")));
+		btnNewButton_2.setIcon(new ImageIcon(
+				DashboardUI.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/download.png")));
 		toolBar.add(btnNewButton_2);
 
 		JButton btnNewButton_3 = new JButton("");
 		btnNewButton_3.setToolTipText("Rename");
-		btnNewButton_3.setIcon(new ImageIcon(DashboardUI.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/rename.png")));
+		btnNewButton_3.setIcon(new ImageIcon(
+				DashboardUI.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/rename.png")));
 		toolBar.add(btnNewButton_3);
 
 		JButton btnNewButton_4 = new JButton("");
 		btnNewButton_4.setToolTipText("Delete");
-		btnNewButton_4.setIcon(new ImageIcon(DashboardUI.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/delete.png")));
+		btnNewButton_4.setIcon(new ImageIcon(
+				DashboardUI.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/delete.png")));
 		toolBar.add(btnNewButton_4);
 
 		JLabel label_1 = new JLabel("  ");
@@ -206,32 +206,23 @@ public class DashboardUI
 
 		JButton btnNewButton_5 = new JButton("");
 		btnNewButton_5.setToolTipText("Search");
-		btnNewButton_5.setIcon(new ImageIcon(DashboardUI.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/search.png")));
+		btnNewButton_5.setIcon(new ImageIcon(
+				DashboardUI.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/search.png")));
 		toolBar.add(btnNewButton_5);
 
 		JTree tree = new JTree();
-		tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("Root")
-		{
+		tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("Root") {
 			{
 
 				DefaultMutableTreeNode filesList = new DefaultMutableTreeNode("My Files");
-				for (FileDetailsDTO dto : myFilelist)
-				{
+				for (FileDetailsDTO dto : myFilelist) {
 					filesList.add(new DefaultMutableTreeNode(dto.getName()));
 				}
-				// filesList.add(new DefaultMutableTreeNode("Dockerfile"));
-				// filesList.add(new DefaultMutableTreeNode("images1.jpeg"));
-				// filesList.add(new DefaultMutableTreeNode("icon.png"));
-				// filesList.add(new DefaultMutableTreeNode("file2.json"));
-				// filesList.add(new DefaultMutableTreeNode("httpd.conf"));
-				// filesList.add(new DefaultMutableTreeNode("httpd(2).conf"));
-				// filesList.add(new DefaultMutableTreeNode("Sample.png"));
-				// filesList.add(new DefaultMutableTreeNode("newDocument.doc"));
 				add(filesList);
-				filesList = new DefaultMutableTreeNode("Shared Files");
-				filesList.add(new DefaultMutableTreeNode("notes.txt"));
-				filesList.add(new DefaultMutableTreeNode("sample.txt"));
-				filesList.add(new DefaultMutableTreeNode("files.zip"));
+				filesList = new DefaultMutableTreeNode("Received Shares");
+				for (FileDetailsDTO dto : myReceivedlist) {
+					filesList.add(new DefaultMutableTreeNode(dto.getName()));
+				}
 				add(filesList);
 			}
 		}));
