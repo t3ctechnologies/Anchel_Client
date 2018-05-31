@@ -39,4 +39,19 @@ public class DashboardController {
 		return response;
 	}
 
+	public ResponseObject deleteMyFiles(String uuid, String username) {
+		OUT.info("Deleting myfiles file with a uuid: "+ uuid + " started.");
+		try{
+			response = new ResponseObject();
+			response.setResponseObject(new DashboardService().deleteMyFiles(uuid, username));
+			response.setStatus(ApplicationConstants.getSuccess());
+		}
+		catch (Exception e) {
+			OUT.error(e.getStackTrace());
+			response.setStatus(ApplicationConstants.getFailure());
+		}
+		OUT.info("RESP:Deleting myfiles file completed.");
+		return response;
+	}
+
 }

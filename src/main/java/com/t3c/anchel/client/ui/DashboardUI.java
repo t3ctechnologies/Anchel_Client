@@ -3,77 +3,78 @@ package com.t3c.anchel.client.ui;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.JTable;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.SwingConstants;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 
 import com.t3c.anchel.client.model.common.ResponseObject;
 import com.t3c.anchel.client.model.dashboard.FileDetailsDTO;
 import com.t3c.anchel.client.utils.consts.ApplicationConstants;
+import com.t3c.anchel.client.wsclient.controller.auth.UserSessionCache;
 import com.t3c.anchel.client.wsclient.controller.dashboard.DashboardController;
 
 public class DashboardUI {
 
-	private JFrame frame;
+	private JFrame frmAncheldashboard;
 	List<FileDetailsDTO> myFilelist = null;
 	List<FileDetailsDTO> myReceivedlist = null;
+	JTable mytable;
+	JTable sharedtable;
 	private String username;
-
-	// public static void main(String[] args)
-	// {
-	// EventQueue.invokeLater(new Runnable()
-	// {
-	// public void run()
-	// {
-	// try
-	// {
-	// DashboardUI window = new DashboardUI();
-	// window.frame.setVisible(true);
-	// }
-	// catch (Exception e)
-	// {
-	// e.printStackTrace();
-	// }
-	// }
-	// });
-	// }
+	JFileChooser fileChoose;
+	DefaultMutableTreeNode filesList1;
+	DefaultMutableTreeNode filesList2;
+	private String selectedFile = null;
+	private JTree tree;
 
 	/**
 	 * Create the application.
 	 */
 	public DashboardUI(String username) {
 		this.username = username;
-		getData(username);
+		getMyFiles(username);
+		getSharedFiles(username);
 		initialize();
-		frame.setVisible(true);
+		frmAncheldashboard.setVisible(true);
 	}
 
 	/**
-	 * This method is used to get the data from Backend
+	 * This method is used to get the my files data from Backend
 	 */
-	private void getData(String username) {
+	private void getMyFiles(String username) {
 		ResponseObject resp = null;
 		resp = new DashboardController().getMyFiles(username);
 		if (resp.getStatus().equalsIgnoreCase(ApplicationConstants.getSuccess())) {
 			myFilelist = (List<FileDetailsDTO>) resp.getResponseObject();
 		}
+	}
+
+	/**
+	 * This method is used to get the shared files data from Backend
+	 */
+	private void getSharedFiles(String username) {
+		ResponseObject resp = null;
 		resp = new DashboardController().getReceivedFiles(username);
 		if (resp.getStatus().equalsIgnoreCase(ApplicationConstants.getSuccess())) {
 			myReceivedlist = (List<FileDetailsDTO>) resp.getResponseObject();
-
 		}
 	}
 
@@ -81,90 +82,22 @@ public class DashboardUI {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		frame = new JFrame();
-		frame.setBounds(100, 100, 624, 419);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-		JMenuBar menuBar = new JMenuBar();
-		frame.setJMenuBar(menuBar);
-
-		JMenu mnFile = new JMenu("File");
-		menuBar.add(mnFile);
-
-		JMenuItem mntmImport = new JMenuItem("Import");
-		mnFile.add(mntmImport);
-
-		JMenuItem mntmExport = new JMenuItem("Export");
-		mnFile.add(mntmExport);
-
-		JSeparator separator = new JSeparator();
-		mnFile.add(separator);
-
-		JMenuItem mntmExit = new JMenuItem("Exit");
-		mntmExit.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				frame.dispose();
-				new LoginUI();
-			}
-		});
-		mnFile.add(mntmExit);
-
-		JMenu mnEdit = new JMenu("Edit");
-		menuBar.add(mnEdit);
-
-		JMenuItem mntmSettings = new JMenuItem("Settings");
-		mnEdit.add(mntmSettings);
-
-		JMenu mnView = new JMenu("View");
-		menuBar.add(mnView);
-
-		JMenuItem mntmRefresh = new JMenuItem("Refresh");
-		mnView.add(mntmRefresh);
-
-		JMenu mnHelp = new JMenu("Help");
-		menuBar.add(mnHelp);
-
-		JMenuItem mntmNewMenuItem = new JMenuItem("Check for updates...");
-		mnHelp.add(mntmNewMenuItem);
-
-		JSeparator separator_1 = new JSeparator();
-		mnHelp.add(separator_1);
-
-		JMenuItem mntmContents = new JMenuItem("Contents");
-		mnHelp.add(mntmContents);
-
-		JMenuItem mntmNewMenuItem_1 = new JMenuItem("About");
-		mntmNewMenuItem_1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				frame.dispose();
-				new AboutUI();
-			}
-		});
-		mnHelp.add(mntmNewMenuItem_1);
-		frame.getContentPane().setLayout(null);
+		frmAncheldashboard = new JFrame();
+		frmAncheldashboard.setTitle("Anchel_Dashboard");
+		frmAncheldashboard.setBounds(100, 100, 624, 419);
+		frmAncheldashboard.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frmAncheldashboard.getContentPane().setLayout(null);
 
 		JToolBar toolBar = new JToolBar();
-		toolBar.setBounds(0, 0, 608, 29);
-		frame.getContentPane().add(toolBar);
-
-		JButton btnNewButton = new JButton("");
-		btnNewButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				int dialogResult = JOptionPane.showConfirmDialog(null,
-						"Are you sure you want to disconnect the current connection?", "Warning",
-						JOptionPane.WARNING_MESSAGE);
-				if (dialogResult == JOptionPane.YES_OPTION) {
-					frame.dispose();
-					new LoginUI();
-				}
-			}
-		});
-		btnNewButton.setToolTipText("Disconnect Current Server");
-		btnNewButton.setIcon(new ImageIcon(
-				DashboardUI.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/disconnectServer.png")));
-		toolBar.add(btnNewButton);
+		toolBar.setBounds(0, 0, 228, 29);
+		frmAncheldashboard.getContentPane().add(toolBar);
 
 		JButton btnNewButton_1 = new JButton("");
+		btnNewButton_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+			}
+		});
 		btnNewButton_1.setToolTipText("Refresh");
 		btnNewButton_1.setIcon(new ImageIcon(
 				DashboardUI.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/refresh.png")));
@@ -178,7 +111,29 @@ public class DashboardUI {
 		separator_2.setOrientation(SwingConstants.VERTICAL);
 		toolBar.add(separator_2);
 
-		JButton btnNewButton_2 = new JButton("");
+		final JButton btnNewButton_6 = new JButton("");
+		btnNewButton_6.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (e.getSource() == btnNewButton_6) {
+					fileChoose = new JFileChooser();
+					int returnVal = fileChoose.showOpenDialog(null);
+					if (returnVal == JFileChooser.APPROVE_OPTION) {
+						File file = fileChoose.getSelectedFile();
+					}
+				}
+			}
+		});
+		btnNewButton_6.setToolTipText("Upload");
+		btnNewButton_6.setIcon(new ImageIcon(
+				DashboardUI.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/search.png")));
+		toolBar.add(btnNewButton_6);
+
+		final JButton btnNewButton_2 = new JButton("");
+		btnNewButton_2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+			}
+		});
 		btnNewButton_2.setToolTipText("Download");
 		btnNewButton_2.setIcon(new ImageIcon(
 				DashboardUI.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/download.png")));
@@ -190,7 +145,29 @@ public class DashboardUI {
 				DashboardUI.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/rename.png")));
 		toolBar.add(btnNewButton_3);
 
-		JButton btnNewButton_4 = new JButton("");
+		final JButton btnNewButton_4 = new JButton("");
+		btnNewButton_4.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (btnNewButton_4.isEnabled()) {
+					for (int i = 0; i < mytable.getRowCount(); i++) {
+						String jtablefile = mytable.getValueAt(i, 1).toString().trim();
+						if (selectedFile.equals(jtablefile)) {
+							String uuid = mytable.getValueAt(i, 0).toString();
+							System.out.println(
+									"Filename is : " + selectedFile + " and" + " corresponding UUID is : " + uuid);
+							ResponseObject resp = null;
+							resp = new DashboardController().deleteMyFiles(uuid, username);
+							if (resp.getStatus().equalsIgnoreCase(ApplicationConstants.getSuccess())) {
+								JOptionPane.showMessageDialog(null, selectedFile.toUpperCase() + " FILE IS DELETED");
+							} else {
+								JOptionPane.showMessageDialog(null, selectedFile + " file is not exist");
+							}
+						}
+					}
+				}
+			}
+		});
+
 		btnNewButton_4.setToolTipText("Delete");
 		btnNewButton_4.setIcon(new ImageIcon(
 				DashboardUI.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/delete.png")));
@@ -204,29 +181,64 @@ public class DashboardUI {
 		separator_3.setMaximumSize(new Dimension(5, 32767));
 		toolBar.add(separator_3);
 
-		JButton btnNewButton_5 = new JButton("");
-		btnNewButton_5.setToolTipText("Search");
-		btnNewButton_5.setIcon(new ImageIcon(
-				DashboardUI.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/search.png")));
-		toolBar.add(btnNewButton_5);
+		JButton btnNewButton = new JButton("");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int dialogResult = JOptionPane.showConfirmDialog(null,
+						"Are you sure you want to disconnect the current connection?", "Warning",
+						JOptionPane.WARNING_MESSAGE);
+				if (dialogResult == JOptionPane.YES_OPTION) {
+					UserSessionCache.getInstance().doDelete(username);
+					frmAncheldashboard.dispose();
+					new LoginUI();
+				}
+			}
+		});
+		btnNewButton.setToolTipText("Logout");
+		btnNewButton.setIcon(new ImageIcon(
+				DashboardUI.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/disconnectServer.png")));
+		toolBar.add(btnNewButton);
 
-		JTree tree = new JTree();
+		tree = new JTree();
+		tree.addTreeSelectionListener(new TreeSelectionListener() {
+			public void valueChanged(TreeSelectionEvent e) {
+				filesList1 = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+				Object userObject = filesList1.getUserObject();
+				selectedFile = userObject.toString().trim();
+				btnNewButton_4.setEnabled(true);
+				System.out.println("You clicked on file : " + selectedFile);
+			}
+		});
+		// final DefaultTableModel model;
 		tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("Root") {
 			{
-
-				DefaultMutableTreeNode filesList = new DefaultMutableTreeNode("My Files");
+				ImageIcon imageIcon = new ImageIcon(
+						DashboardUI.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/file.png"));
+				DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
+				renderer.setLeafIcon(imageIcon);
+				DefaultTableModel model = new DefaultTableModel();
+				mytable = new JTable(model);
+				model.addColumn("UUID");
+				model.addColumn("FILENAME");
+				filesList1 = new DefaultMutableTreeNode("My Files");
 				for (FileDetailsDTO dto : myFilelist) {
-					filesList.add(new DefaultMutableTreeNode(dto.getName()));
+					filesList1.add(new DefaultMutableTreeNode(dto.getName()));
+					model.addRow(new Object[] { dto.getUuid(), dto.getName() });
 				}
-				add(filesList);
-				filesList = new DefaultMutableTreeNode("Received Shares");
+				JScrollPane sp = new JScrollPane(mytable);
+				frmAncheldashboard.add(sp);
+				add(filesList1);
+				filesList2 = new DefaultMutableTreeNode("Received Shares");
 				for (FileDetailsDTO dto : myReceivedlist) {
-					filesList.add(new DefaultMutableTreeNode(dto.getName()));
+					filesList2.add(new DefaultMutableTreeNode(dto.getName()));
 				}
-				add(filesList);
+				add(filesList2);
 			}
 		}));
 		tree.setBounds(10, 40, 588, 307);
-		frame.getContentPane().add(tree);
+		frmAncheldashboard.getContentPane().add(tree);
+
+		// This is used to disable the delete button on load
+		btnNewButton_4.setEnabled(false);
 	}
 }

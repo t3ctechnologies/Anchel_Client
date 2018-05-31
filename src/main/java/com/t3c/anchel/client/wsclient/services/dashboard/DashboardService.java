@@ -76,4 +76,29 @@ public class DashboardService {
 				+ (sharedFiles.size() > 0 ? sharedFiles.size() : "NOT FOUND"));
 		return sharedFiles;
 	}
+
+	public Object deleteMyFiles(String uuid, String username)
+			throws JsonParseException, JsonMappingException, IOException {
+		mapper = new ObjectMapper();
+		urlBuffer = new StringBuilder();
+		String baseURL = UserSessionCache.getInstance().doGet(username + "_url");
+		String auth64 = UserSessionCache.getInstance().doGet(username + "_base");
+
+		urlBuffer.append(baseURL);
+		urlBuffer.append(ApplicationConstants.MY_FILE);
+		urlBuffer.append("/" + uuid);
+		Client restClient = Client.create();
+		WebResource webResource = restClient.resource(urlBuffer.toString());
+		ClientResponse resp = webResource.accept("application/json").header("Authorization", "Basic " + auth64)
+				.delete(ClientResponse.class);
+		if (resp.getStatus() != 200) {
+			OUT.error("Unable to connect to the server");
+		}
+		String jsonString = resp.getEntity(String.class);
+		FileDetailsDTO fileDetailsDTO = mapper.readValue(jsonString, FileDetailsDTO.class);
+		if (restClient != null && jsonString != null) {
+			restClient.destroy();
+		}
+		return fileDetailsDTO;
+	}
 }

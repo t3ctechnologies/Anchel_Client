@@ -6,11 +6,9 @@ import java.awt.event.ActionListener;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
@@ -21,12 +19,12 @@ import com.t3c.anchel.client.model.common.ResponseObject;
 import com.t3c.anchel.client.utils.consts.ApplicationConstants;
 import com.t3c.anchel.client.wsclient.controller.auth.LoginController;
 
-public class LoginUI {
+public class LoginUI extends JFrame {
 
 	private JFrame frmLogin;
 	private JTextField textField;
 	private JPasswordField textField_1;
-	private JTextField textField_2;
+	private JTextField txtSs;
 	private JPanel panel;
 	private String username = null;
 
@@ -58,38 +56,12 @@ public class LoginUI {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		// this.pack();
 		frmLogin = new JFrame();
-		frmLogin.setResizable(false);
-		frmLogin.setTitle("Anchel client");
+		frmLogin.setResizable(true);
+		frmLogin.setTitle("Anchel");
 		frmLogin.setBounds(100, 100, 580, 308);
 		frmLogin.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-		JMenuBar menuBar = new JMenuBar();
-		frmLogin.setJMenuBar(menuBar);
-
-		JMenu mnFile = new JMenu("File");
-		menuBar.add(mnFile);
-
-		JMenuItem mntmLogin = new JMenuItem("Login");
-		mnFile.add(mntmLogin);
-
-		JMenuItem mntmExit = new JMenuItem("Exit");
-		mnFile.add(mntmExit);
-
-		JMenu mnHelp = new JMenu("Help");
-		menuBar.add(mnHelp);
-
-		JMenuItem mntmNewMenuItem = new JMenuItem("Contents");
-		mnHelp.add(mntmNewMenuItem);
-
-		JMenuItem mntmHelp = new JMenuItem("Help");
-		mntmHelp.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				frmLogin.dispose();
-				new AboutUI();
-			}
-		});
-		mnHelp.add(mntmHelp);
 		frmLogin.getContentPane().setLayout(null);
 
 		panel = new JPanel();
@@ -117,20 +89,20 @@ public class LoginUI {
 		panel.add(textField_1);
 		textField_1.setColumns(10);
 
-		JLabel lblServerUrl = new JLabel("Server URL");
-		lblServerUrl.setBounds(10, 101, 78, 14);
-		panel.add(lblServerUrl);
-
-		textField_2 = new JTextField();
-		textField_2.setBounds(10, 114, 160, 20);
-		panel.add(textField_2);
-		textField_2.setColumns(10);
-
 		JLabel lblNewLabel = new JLabel("");
 		lblNewLabel.setIcon(
 				new ImageIcon(LoginUI.class.getResource("/com/t3c/anchel/client/utils/images/login/logo.png")));
 		lblNewLabel.setBounds(200, 11, 335, 145);
 		panel.add(lblNewLabel);
+
+		String url[] = { "http://localhost:8080" };
+		final JComboBox comboBox = new JComboBox(url);
+		comboBox.setBounds(10, 114, 160, 20);
+		panel.add(comboBox);
+
+		JLabel lblNewLabel_1 = new JLabel("Server URL");
+		lblNewLabel_1.setBounds(10, 101, 78, 14);
+		panel.add(lblNewLabel_1);
 
 		JButton btnNewButton = new JButton("Cancel");
 		btnNewButton.setBounds(465, 199, 89, 23);
@@ -146,24 +118,22 @@ public class LoginUI {
 			public void actionPerformed(ActionEvent e) {
 				username = textField.getText().trim();
 				String password = textField_1.getText().trim();
-				String url = textField_2.getText().trim();
+				String url = comboBox.getItemAt(comboBox.getSelectedIndex()).toString();
 
 				if (username.equalsIgnoreCase("")) {
-					JOptionPane.showMessageDialog(panel, "Username is required", "Error",
-							JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(panel, "Username is required", "Error", JOptionPane.ERROR_MESSAGE);
 				} else if (password.equalsIgnoreCase("")) {
 					JOptionPane.showMessageDialog(panel, "Password is required", "Error", JOptionPane.ERROR_MESSAGE);
 				} else if (url.equalsIgnoreCase("")) {
-					JOptionPane.showMessageDialog(panel, "Server URL is required", "Error",
-							JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(panel, "Server URL is required", "Error", JOptionPane.ERROR_MESSAGE);
 				} else {
 					ResponseObject status = new LoginController().isAuthorised(username, password, url);
 					if (status != null && status.getStatus().equalsIgnoreCase(ApplicationConstants.getSuccess())) {
 						frmLogin.dispose();
 						new DashboardUI(username);
 					} else {
-						JOptionPane.showMessageDialog(panel, "Something went wrong!\n contact your administrator.", "Error",
-								JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(panel, "Something went wrong!\n contact your administrator.",
+								"Error", JOptionPane.ERROR_MESSAGE);
 					}
 				}
 			}

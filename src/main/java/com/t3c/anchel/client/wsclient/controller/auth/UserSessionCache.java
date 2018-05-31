@@ -33,6 +33,7 @@ public class UserSessionCache
 	{
 		OUT.debug("Deleting key :" + key);
 		userSession.remove(key);
+		OUT.debug("User :" + key + " logged out successfully");
 	}
 
 	public void doDeleteAll()
