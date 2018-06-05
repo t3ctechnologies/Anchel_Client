@@ -4,6 +4,9 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 import javax.swing.ImageIcon;
@@ -12,6 +15,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTable;
@@ -20,6 +24,7 @@ import javax.swing.JTree;
 import javax.swing.SwingConstants;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.filechooser.FileSystemView;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -40,10 +45,14 @@ public class DashboardUI {
 	JTable sharedtable;
 	private String username;
 	JFileChooser fileChoose;
+	JProgressBar progressBar;
 	DefaultMutableTreeNode filesList1;
 	DefaultMutableTreeNode filesList2;
 	private String selectedFile = null;
+	private int filesize = 0;
+	private String fileToDownload = null;
 	private JTree tree;
+	ResponseObject resp = null;
 
 	/**
 	 * Create the application.
@@ -131,7 +140,58 @@ public class DashboardUI {
 		final JButton btnNewButton_2 = new JButton("");
 		btnNewButton_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				if (btnNewButton_2.isEnabled()) {
+					progressBar.setIndeterminate(true);
+					progressBar.setVisible(true);
+					for (int i = 0; i < mytable.getRowCount(); i++) {
+						String jtablefile = mytable.getValueAt(i, 1).toString().trim();
+						if (selectedFile.equals(jtablefile)) {
+							String uuid = mytable.getValueAt(i, 0).toString();
+							System.out.println(
+									"Filename is : " + selectedFile + " and" + " corresponding UUID is : " + uuid);
 
+							fileChoose = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
+							fileChoose.setDialogTitle("Choose Directory");
+							fileChoose.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+							int returnValue = fileChoose.showSaveDialog(null);
+							if (returnValue == JFileChooser.APPROVE_OPTION) {
+								if (fileChoose.getSelectedFile().isDirectory()) {
+									fileToDownload = fileChoose.getSelectedFile() + File.separator
+											+ selectedFile;
+									progressBar.setIndeterminate(true);
+									progressBar.setVisible(true);
+									resp = new DashboardController().downloadMyFiles(uuid, username, progressBar);
+									if (resp.getStatus().equalsIgnoreCase(ApplicationConstants.getFailure())) {
+										JOptionPane.showMessageDialog(null, "SOMETHING WENT WRONG, NOT DOWNLOADED");
+									} else {
+										InputStream is = resp.getInputStream();
+										try {
+											while (is.available() != 0) {
+												int bytesRead;
+												byte[] buffer = new byte[is.available()];
+												FileOutputStream os = new FileOutputStream(fileToDownload);
+												os.write(buffer);
+												is.close();
+												os.close();
+											}
+											File downloaded = new File(fileToDownload);
+											if(downloaded!=null && downloaded.exists() && downloaded.getTotalSpace()>0 ){
+												JOptionPane.showMessageDialog(null, selectedFile.toUpperCase()+" FILE IS DOWNLOADED");
+											}
+											else {
+												JOptionPane.showMessageDialog(null, selectedFile.toUpperCase()+" FILE IS NOT DOWNLOADED");
+											}
+										} catch (IOException e1) {
+											e1.printStackTrace();
+										}
+									}
+								}
+							}
+
+						}
+					}
+				}
+				progressBar.setVisible(false);
 			}
 		});
 		btnNewButton_2.setToolTipText("Download");
@@ -206,6 +266,7 @@ public class DashboardUI {
 				Object userObject = filesList1.getUserObject();
 				selectedFile = userObject.toString().trim();
 				btnNewButton_4.setEnabled(true);
+				btnNewButton_2.setEnabled(true);
 				System.out.println("You clicked on file : " + selectedFile);
 			}
 		});
@@ -223,16 +284,17 @@ public class DashboardUI {
 				filesList1 = new DefaultMutableTreeNode("My Files");
 				for (FileDetailsDTO dto : myFilelist) {
 					filesList1.add(new DefaultMutableTreeNode(dto.getName()));
-					model.addRow(new Object[] { dto.getUuid(), dto.getName() });
+					model.addRow(new Object[] { dto.getUuid(), dto.getName(), dto.getSize() });
 				}
-				JScrollPane sp = new JScrollPane(mytable);
-				frmAncheldashboard.add(sp);
 				add(filesList1);
 				filesList2 = new DefaultMutableTreeNode("Received Shares");
 				for (FileDetailsDTO dto : myReceivedlist) {
 					filesList2.add(new DefaultMutableTreeNode(dto.getName()));
+					model.addRow(new Object[] { dto.getUuid(), dto.getName(), dto.getSize() });
 				}
 				add(filesList2);
+				JScrollPane sp = new JScrollPane(mytable);
+				frmAncheldashboard.getContentPane().add(sp);
 			}
 		}));
 		tree.setBounds(10, 40, 588, 307);
@@ -240,5 +302,12 @@ public class DashboardUI {
 
 		// This is used to disable the delete button on load
 		btnNewButton_4.setEnabled(false);
+		btnNewButton_2.setEnabled(false);
+
+		progressBar = new JProgressBar(0, 2000);
+		progressBar.setToolTipText("Your File is Downloading...");
+		progressBar.setBounds(376, 0, 222, 29);
+		frmAncheldashboard.getContentPane().add(progressBar);
+
 	}
 }

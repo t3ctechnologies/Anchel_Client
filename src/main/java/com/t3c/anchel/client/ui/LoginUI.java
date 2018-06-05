@@ -58,15 +58,15 @@ public class LoginUI extends JFrame {
 	private void initialize() {
 		// this.pack();
 		frmLogin = new JFrame();
-		frmLogin.setResizable(true);
+		frmLogin.setResizable(false);
 		frmLogin.setTitle("Anchel");
-		frmLogin.setBounds(100, 100, 580, 308);
+		frmLogin.setBounds(100, 100, 580, 305);
 		frmLogin.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmLogin.getContentPane().setLayout(null);
 
 		panel = new JPanel();
-		panel.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		panel.setBounds(10, 11, 544, 177);
+		panel.setBorder(null);
+		panel.setBounds(10, 11, 544, 196);
 		frmLogin.getContentPane().add(panel);
 		panel.setLayout(null);
 
@@ -105,7 +105,7 @@ public class LoginUI extends JFrame {
 		panel.add(lblNewLabel_1);
 
 		JButton btnNewButton = new JButton("Cancel");
-		btnNewButton.setBounds(465, 199, 89, 23);
+		btnNewButton.setBounds(465, 229, 89, 23);
 		frmLogin.getContentPane().add(btnNewButton);
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -116,8 +116,8 @@ public class LoginUI extends JFrame {
 		JButton btnOk = new JButton("OK");
 		btnOk.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				username = textField.getText().trim();
-				String password = textField_1.getText().trim();
+				username = "root@localhost.localdomain";
+				String password = "adminlinshare";
 				String url = comboBox.getItemAt(comboBox.getSelectedIndex()).toString();
 
 				if (username.equalsIgnoreCase("")) {
@@ -138,7 +138,7 @@ public class LoginUI extends JFrame {
 				}
 			}
 		});
-		btnOk.setBounds(366, 199, 89, 23);
+		btnOk.setBounds(366, 229, 89, 23);
 		frmLogin.getContentPane().add(btnOk);
 	}
 }

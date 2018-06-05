@@ -1,5 +1,9 @@
 package com.t3c.anchel.client.wsclient.controller.dashboard;
 
+import java.io.IOException;
+
+import javax.swing.JProgressBar;
+
 import org.apache.log4j.Logger;
 
 import com.t3c.anchel.client.model.common.ResponseObject;
@@ -25,13 +29,12 @@ public class DashboardController {
 	}
 
 	public ResponseObject getReceivedFiles(String username) {
-		OUT.info("Getting received files for user: "+ username + " started.");
-		try{
+		OUT.info("Getting received files for user: " + username + " started.");
+		try {
 			response = new ResponseObject();
 			response.setResponseObject(new DashboardService().getReceivedFiles(username));
 			response.setStatus(ApplicationConstants.getSuccess());
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			OUT.error(e.getStackTrace());
 			response.setStatus(ApplicationConstants.getFailure());
 		}
@@ -40,17 +43,30 @@ public class DashboardController {
 	}
 
 	public ResponseObject deleteMyFiles(String uuid, String username) {
-		OUT.info("Deleting myfiles file with a uuid: "+ uuid + " started.");
-		try{
+		OUT.info("Deleting myfiles file with a uuid: " + uuid + " is started.");
+		try {
 			response = new ResponseObject();
 			response.setResponseObject(new DashboardService().deleteMyFiles(uuid, username));
 			response.setStatus(ApplicationConstants.getSuccess());
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			OUT.error(e.getStackTrace());
 			response.setStatus(ApplicationConstants.getFailure());
 		}
-		OUT.info("RESP:Deleting myfiles file completed.");
+		OUT.info("RESP:Deleting myfiles file is completed.");
+		return response;
+	}
+
+	public ResponseObject downloadMyFiles(String uuid, String username, JProgressBar progressBar) {
+		OUT.info("Downloading myfiles file with a uuid: " + uuid + " is started.");
+		response = new ResponseObject();
+			try {
+				response = new DashboardService().downloadMyFiles(uuid, username, progressBar);
+				response.setStatus(ApplicationConstants.getSuccess());
+			} catch (IOException e) {
+				response.setStatus(ApplicationConstants.getFailure());
+				e.printStackTrace();
+			}
+		OUT.info("RESP:Downloading myfiles file is completed.");
 		return response;
 	}
 
