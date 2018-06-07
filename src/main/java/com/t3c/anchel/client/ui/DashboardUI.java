@@ -21,7 +21,10 @@ import javax.swing.JSeparator;
 import javax.swing.JTable;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.filechooser.FileSystemView;
@@ -35,6 +38,9 @@ import com.t3c.anchel.client.model.dashboard.FileDetailsDTO;
 import com.t3c.anchel.client.utils.consts.ApplicationConstants;
 import com.t3c.anchel.client.wsclient.controller.auth.UserSessionCache;
 import com.t3c.anchel.client.wsclient.controller.dashboard.DashboardController;
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
+import javax.swing.LayoutStyle.ComponentPlacement;
 
 public class DashboardUI {
 
@@ -52,6 +58,7 @@ public class DashboardUI {
 	private int filesize = 0;
 	private String fileToDownload = null;
 	private JTree tree;
+	private ListSelectionListener listSelectionListener;
 	ResponseObject resp = null;
 
 	/**
@@ -93,18 +100,14 @@ public class DashboardUI {
 	private void initialize() {
 		frmAncheldashboard = new JFrame();
 		frmAncheldashboard.setTitle("Anchel_Dashboard");
-		frmAncheldashboard.setBounds(100, 100, 624, 419);
+		frmAncheldashboard.setBounds(100, 100, 627, 421);
 		frmAncheldashboard.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frmAncheldashboard.getContentPane().setLayout(null);
 
 		JToolBar toolBar = new JToolBar();
-		toolBar.setBounds(0, 0, 228, 29);
-		frmAncheldashboard.getContentPane().add(toolBar);
 
 		JButton btnNewButton_1 = new JButton("");
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
 			}
 		});
 		btnNewButton_1.setToolTipText("Refresh");
@@ -156,30 +159,33 @@ public class DashboardUI {
 							int returnValue = fileChoose.showSaveDialog(null);
 							if (returnValue == JFileChooser.APPROVE_OPTION) {
 								if (fileChoose.getSelectedFile().isDirectory()) {
-									fileToDownload = fileChoose.getSelectedFile() + File.separator
-											+ selectedFile;
+									fileToDownload = fileChoose.getSelectedFile() + File.separator + selectedFile;
 									progressBar.setIndeterminate(true);
 									progressBar.setVisible(true);
-									resp = new DashboardController().downloadMyFiles(uuid, username, progressBar);
+									resp = new DashboardController().downloadMyFiles(uuid, username);
 									if (resp.getStatus().equalsIgnoreCase(ApplicationConstants.getFailure())) {
 										JOptionPane.showMessageDialog(null, "SOMETHING WENT WRONG, NOT DOWNLOADED");
 									} else {
 										InputStream is = resp.getInputStream();
 										try {
-											while (is.available() != 0) {
+											while(is.available() !=0){
 												int bytesRead;
-												byte[] buffer = new byte[is.available()];
+												byte[] buffer = new byte[2048];
 												FileOutputStream os = new FileOutputStream(fileToDownload);
-												os.write(buffer);
+												while( (bytesRead=is.read(buffer)) !=-1 ){
+													os.write(buffer, 0, bytesRead);
+												}
 												is.close();
 												os.close();
 											}
 											File downloaded = new File(fileToDownload);
-											if(downloaded!=null && downloaded.exists() && downloaded.getTotalSpace()>0 ){
-												JOptionPane.showMessageDialog(null, selectedFile.toUpperCase()+" FILE IS DOWNLOADED");
-											}
-											else {
-												JOptionPane.showMessageDialog(null, selectedFile.toUpperCase()+" FILE IS NOT DOWNLOADED");
+											if (downloaded != null && downloaded.exists()
+													&& downloaded.getTotalSpace() > 0) {
+												JOptionPane.showMessageDialog(null,
+														selectedFile.toUpperCase() + " FILE IS DOWNLOADED");
+											} else {
+												JOptionPane.showMessageDialog(null,
+														selectedFile.toUpperCase() + " FILE IS NOT DOWNLOADED");
 											}
 										} catch (IOException e1) {
 											e1.printStackTrace();
@@ -199,7 +205,34 @@ public class DashboardUI {
 				DashboardUI.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/download.png")));
 		toolBar.add(btnNewButton_2);
 
-		JButton btnNewButton_3 = new JButton("");
+		final JButton btnNewButton_3 = new JButton("");
+		btnNewButton_3.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (btnNewButton_3.isEnabled()) {
+					for (int i = 0; i < mytable.getRowCount(); i++) {
+						String jtablefile = mytable.getValueAt(i, 1).toString().trim();
+						if (selectedFile.equals(jtablefile)) {
+							String uuid = mytable.getValueAt(i, 0).toString();
+							System.out.println(
+									"Filename is : " + selectedFile + " and" + " corresponding UUID is : " + uuid);
+							String renameString = JOptionPane.showInputDialog(frmAncheldashboard, "New Filename");
+							if (! renameString.equals("")) {
+								ResponseObject resp = null;
+								resp = new DashboardController().renameMyFiles(uuid, username, renameString);
+								if (resp.getStatus().equalsIgnoreCase(ApplicationConstants.getSuccess())) {
+									JOptionPane.showMessageDialog(null,
+											"FILE RENAMEd INTO "+renameString.toUpperCase());
+								} else {
+									JOptionPane.showMessageDialog(null,"SOMETHING WENT WRONG");
+								}
+							} else {
+								JOptionPane.showMessageDialog(null, "FILENAME SHOULD NOT BE EMPTY");
+							}
+						}
+					}
+				}
+			}
+		});
 		btnNewButton_3.setToolTipText("Rename");
 		btnNewButton_3.setIcon(new ImageIcon(
 				DashboardUI.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/rename.png")));
@@ -267,6 +300,7 @@ public class DashboardUI {
 				selectedFile = userObject.toString().trim();
 				btnNewButton_4.setEnabled(true);
 				btnNewButton_2.setEnabled(true);
+				btnNewButton_3.setEnabled(true);
 				System.out.println("You clicked on file : " + selectedFile);
 			}
 		});
@@ -279,8 +313,20 @@ public class DashboardUI {
 				renderer.setLeafIcon(imageIcon);
 				DefaultTableModel model = new DefaultTableModel();
 				mytable = new JTable(model);
+				mytable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+				mytable.setAutoCreateRowSorter(true);
+				mytable.setShowVerticalLines(false);
+				listSelectionListener = new ListSelectionListener() {
+					public void valueChanged(ListSelectionEvent lse) {
+						int row = mytable.getSelectionModel().getLeadSelectionIndex();
+						((FileTableModel) mytable.getModel()).getFile(row);
+					}
+				};
+				mytable.getSelectionModel().addListSelectionListener(listSelectionListener);
+
 				model.addColumn("UUID");
 				model.addColumn("FILENAME");
+				model.addColumn("SIZE");
 				filesList1 = new DefaultMutableTreeNode("My Files");
 				for (FileDetailsDTO dto : myFilelist) {
 					filesList1.add(new DefaultMutableTreeNode(dto.getName()));
@@ -297,17 +343,33 @@ public class DashboardUI {
 				frmAncheldashboard.getContentPane().add(sp);
 			}
 		}));
-		tree.setBounds(10, 40, 588, 307);
-		frmAncheldashboard.getContentPane().add(tree);
 
 		// This is used to disable the delete button on load
 		btnNewButton_4.setEnabled(false);
 		btnNewButton_2.setEnabled(false);
+		btnNewButton_3.setEnabled(false);
 
 		progressBar = new JProgressBar(0, 2000);
 		progressBar.setToolTipText("Your File is Downloading...");
-		progressBar.setBounds(376, 0, 222, 29);
-		frmAncheldashboard.getContentPane().add(progressBar);
+		GroupLayout groupLayout = new GroupLayout(frmAncheldashboard.getContentPane());
+		groupLayout
+				.setHorizontalGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+						.addGroup(Alignment.TRAILING, groupLayout.createSequentialGroup()
+								.addComponent(toolBar, GroupLayout.PREFERRED_SIZE, 228, GroupLayout.PREFERRED_SIZE)
+								.addPreferredGap(ComponentPlacement.RELATED, 191, Short.MAX_VALUE)
+								.addComponent(progressBar, GroupLayout.PREFERRED_SIZE, 179, GroupLayout.PREFERRED_SIZE)
+								.addGap(13))
+						.addGroup(groupLayout.createSequentialGroup().addGap(10)
+								.addComponent(tree, GroupLayout.DEFAULT_SIZE, 591, Short.MAX_VALUE).addContainerGap()));
+		groupLayout.setVerticalGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+				.addGroup(groupLayout.createSequentialGroup()
+						.addGroup(groupLayout.createParallelGroup(Alignment.LEADING, false)
+								.addComponent(toolBar, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+										GroupLayout.PREFERRED_SIZE)
+								.addComponent(progressBar, GroupLayout.PREFERRED_SIZE, 29, GroupLayout.PREFERRED_SIZE))
+						.addGap(11).addComponent(tree, GroupLayout.DEFAULT_SIZE, 331, Short.MAX_VALUE)
+						.addContainerGap()));
+		frmAncheldashboard.getContentPane().setLayout(groupLayout);
 
 	}
 }

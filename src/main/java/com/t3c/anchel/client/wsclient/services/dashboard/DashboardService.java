@@ -1,20 +1,18 @@
 package com.t3c.anchel.client.wsclient.services.dashboard;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
 import javax.swing.JProgressBar;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
@@ -110,9 +108,7 @@ public class DashboardService {
 		return fileDetailsDTO;
 	}
 
-	public ResponseObject downloadMyFiles(String uuid, String username, JProgressBar progressBar) throws IOException {	
-		progressBar.setIndeterminate(true);
-		progressBar.setVisible(true);
+	public ResponseObject downloadMyFiles(String uuid, String username) throws IOException {
 		mapper = new ObjectMapper();
 		urlBuffer = new StringBuilder();
 		String baseURL = UserSessionCache.getInstance().doGet(username + "_url");
@@ -129,10 +125,45 @@ public class DashboardService {
 		response = new ResponseObject();
 		if (resp.getStatus() != 200) {
 			OUT.error("File Downloading is Failed");
+			response.setStatus(ApplicationConstants.getFailure());
+		}
+		InputStream inputStream = resp.getEntity(InputStream.class);
+		response.setInputStream(inputStream);
+		if(inputStream.available() == 0){
+			response.setStatus(ApplicationConstants.getFailure());
+		}
+		else {
+			response.setStatus(ApplicationConstants.getSuccess());
+		}
+		return response;
+
+	}
+
+	public ResponseObject renameMyFiles(String uuid, String username, String renameString) {
+		mapper = new ObjectMapper();
+		urlBuffer = new StringBuilder();
+		String baseURL = UserSessionCache.getInstance().doGet(username + "_url");
+		String auth64 = UserSessionCache.getInstance().doGet(username + "_base");
+		Gson gson = new Gson();
+		FileDetailsDTO detailsDTO = new FileDetailsDTO();
+		detailsDTO.setName(renameString);
+		String jsonInString = gson.toJson(detailsDTO);
+		urlBuffer.append(baseURL);
+		urlBuffer.append(ApplicationConstants.MY_FILE);
+		urlBuffer.append("/" + uuid);
+		Client restClient = Client.create();
+		WebResource webResource = restClient.resource(urlBuffer.toString());
+		ClientResponse resp = webResource.accept("application/json").header("Authorization", "Basic " + auth64)
+				.type("application/json").put(ClientResponse.class, jsonInString);
+		response = new ResponseObject();
+		if (resp.getStatus() != 200) {
+			OUT.error("File Downloading is Failed");
+			response.setStatus(ApplicationConstants.getFailure());
+		}else {
+			response.setStatus(ApplicationConstants.getSuccess());
 		}
 		InputStream inputStream = resp.getEntity(InputStream.class);
 		response.setInputStream(inputStream);
 		return response;
-
 	}
 }

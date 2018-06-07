@@ -56,17 +56,24 @@ public class DashboardController {
 		return response;
 	}
 
-	public ResponseObject downloadMyFiles(String uuid, String username, JProgressBar progressBar) {
+	public ResponseObject downloadMyFiles(String uuid, String username) {
 		OUT.info("Downloading myfiles file with a uuid: " + uuid + " is started.");
 		response = new ResponseObject();
 			try {
-				response = new DashboardService().downloadMyFiles(uuid, username, progressBar);
-				response.setStatus(ApplicationConstants.getSuccess());
+				response = new DashboardService().downloadMyFiles(uuid, username);
 			} catch (IOException e) {
 				response.setStatus(ApplicationConstants.getFailure());
 				e.printStackTrace();
 			}
 		OUT.info("RESP:Downloading myfiles file is completed.");
+		return response;
+	}
+
+	public ResponseObject renameMyFiles(String uuid, String username, String renameString) {
+		OUT.info("Renaming myfiles file with a uuid: " + uuid + " is started.");
+		response = new ResponseObject();
+			response = new DashboardService().renameMyFiles(uuid, username, renameString);
+		OUT.info("RESP:Renaming myfiles file is completed.");
 		return response;
 	}
 
