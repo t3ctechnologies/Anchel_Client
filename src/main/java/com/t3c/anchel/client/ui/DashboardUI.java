@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -21,10 +23,8 @@ import javax.swing.JSeparator;
 import javax.swing.JTable;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
-import javax.swing.ListSelectionModel;
+import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.SwingConstants;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.filechooser.FileSystemView;
@@ -32,15 +32,13 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
 
 import com.t3c.anchel.client.model.common.ResponseObject;
 import com.t3c.anchel.client.model.dashboard.FileDetailsDTO;
 import com.t3c.anchel.client.utils.consts.ApplicationConstants;
 import com.t3c.anchel.client.wsclient.controller.auth.UserSessionCache;
 import com.t3c.anchel.client.wsclient.controller.dashboard.DashboardController;
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
-import javax.swing.LayoutStyle.ComponentPlacement;
 
 public class DashboardUI {
 
@@ -48,18 +46,15 @@ public class DashboardUI {
 	List<FileDetailsDTO> myFilelist = null;
 	List<FileDetailsDTO> myReceivedlist = null;
 	JTable mytable;
-	JTable sharedtable;
 	private String username;
 	JFileChooser fileChoose;
 	JProgressBar progressBar;
-	DefaultMutableTreeNode filesList1;
-	DefaultMutableTreeNode filesList2;
+	DefaultMutableTreeNode fileListNode, sharedListNode, rootNode, selectedNode;
 	private String selectedFile = null;
-	private int filesize = 0;
 	private String fileToDownload = null;
 	private JTree tree;
-	private ListSelectionListener listSelectionListener;
 	ResponseObject resp = null;
+	DefaultTreeModel treeModel;
 
 	/**
 	 * Create the application.
@@ -108,6 +103,7 @@ public class DashboardUI {
 		JButton btnNewButton_1 = new JButton("");
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				reloadPage();
 			}
 		});
 		btnNewButton_1.setToolTipText("Refresh");
@@ -137,7 +133,7 @@ public class DashboardUI {
 		});
 		btnNewButton_6.setToolTipText("Upload");
 		btnNewButton_6.setIcon(new ImageIcon(
-				DashboardUI.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/search.png")));
+				DashboardUI.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/uploads.png")));
 		toolBar.add(btnNewButton_6);
 
 		final JButton btnNewButton_2 = new JButton("");
@@ -146,56 +142,7 @@ public class DashboardUI {
 				if (btnNewButton_2.isEnabled()) {
 					progressBar.setIndeterminate(true);
 					progressBar.setVisible(true);
-					for (int i = 0; i < mytable.getRowCount(); i++) {
-						String jtablefile = mytable.getValueAt(i, 1).toString().trim();
-						if (selectedFile.equals(jtablefile)) {
-							String uuid = mytable.getValueAt(i, 0).toString();
-							System.out.println(
-									"Filename is : " + selectedFile + " and" + " corresponding UUID is : " + uuid);
-
-							fileChoose = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
-							fileChoose.setDialogTitle("Choose Directory");
-							fileChoose.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-							int returnValue = fileChoose.showSaveDialog(null);
-							if (returnValue == JFileChooser.APPROVE_OPTION) {
-								if (fileChoose.getSelectedFile().isDirectory()) {
-									fileToDownload = fileChoose.getSelectedFile() + File.separator + selectedFile;
-									progressBar.setIndeterminate(true);
-									progressBar.setVisible(true);
-									resp = new DashboardController().downloadMyFiles(uuid, username);
-									if (resp.getStatus().equalsIgnoreCase(ApplicationConstants.getFailure())) {
-										JOptionPane.showMessageDialog(null, "SOMETHING WENT WRONG, NOT DOWNLOADED");
-									} else {
-										InputStream is = resp.getInputStream();
-										try {
-											while(is.available() !=0){
-												int bytesRead;
-												byte[] buffer = new byte[2048];
-												FileOutputStream os = new FileOutputStream(fileToDownload);
-												while( (bytesRead=is.read(buffer)) !=-1 ){
-													os.write(buffer, 0, bytesRead);
-												}
-												is.close();
-												os.close();
-											}
-											File downloaded = new File(fileToDownload);
-											if (downloaded != null && downloaded.exists()
-													&& downloaded.getTotalSpace() > 0) {
-												JOptionPane.showMessageDialog(null,
-														selectedFile.toUpperCase() + " FILE IS DOWNLOADED");
-											} else {
-												JOptionPane.showMessageDialog(null,
-														selectedFile.toUpperCase() + " FILE IS NOT DOWNLOADED");
-											}
-										} catch (IOException e1) {
-											e1.printStackTrace();
-										}
-									}
-								}
-							}
-
-						}
-					}
+					downloadFile();
 				}
 				progressBar.setVisible(false);
 			}
@@ -209,27 +156,7 @@ public class DashboardUI {
 		btnNewButton_3.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (btnNewButton_3.isEnabled()) {
-					for (int i = 0; i < mytable.getRowCount(); i++) {
-						String jtablefile = mytable.getValueAt(i, 1).toString().trim();
-						if (selectedFile.equals(jtablefile)) {
-							String uuid = mytable.getValueAt(i, 0).toString();
-							System.out.println(
-									"Filename is : " + selectedFile + " and" + " corresponding UUID is : " + uuid);
-							String renameString = JOptionPane.showInputDialog(frmAncheldashboard, "New Filename");
-							if (! renameString.equals("")) {
-								ResponseObject resp = null;
-								resp = new DashboardController().renameMyFiles(uuid, username, renameString);
-								if (resp.getStatus().equalsIgnoreCase(ApplicationConstants.getSuccess())) {
-									JOptionPane.showMessageDialog(null,
-											"FILE RENAMEd INTO "+renameString.toUpperCase());
-								} else {
-									JOptionPane.showMessageDialog(null,"SOMETHING WENT WRONG");
-								}
-							} else {
-								JOptionPane.showMessageDialog(null, "FILENAME SHOULD NOT BE EMPTY");
-							}
-						}
-					}
+					renameFile();
 				}
 			}
 		});
@@ -242,21 +169,7 @@ public class DashboardUI {
 		btnNewButton_4.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (btnNewButton_4.isEnabled()) {
-					for (int i = 0; i < mytable.getRowCount(); i++) {
-						String jtablefile = mytable.getValueAt(i, 1).toString().trim();
-						if (selectedFile.equals(jtablefile)) {
-							String uuid = mytable.getValueAt(i, 0).toString();
-							System.out.println(
-									"Filename is : " + selectedFile + " and" + " corresponding UUID is : " + uuid);
-							ResponseObject resp = null;
-							resp = new DashboardController().deleteMyFiles(uuid, username);
-							if (resp.getStatus().equalsIgnoreCase(ApplicationConstants.getSuccess())) {
-								JOptionPane.showMessageDialog(null, selectedFile.toUpperCase() + " FILE IS DELETED");
-							} else {
-								JOptionPane.showMessageDialog(null, selectedFile + " file is not exist");
-							}
-						}
-					}
+					deleteFile();
 				}
 			}
 		});
@@ -289,62 +202,27 @@ public class DashboardUI {
 		});
 		btnNewButton.setToolTipText("Logout");
 		btnNewButton.setIcon(new ImageIcon(
-				DashboardUI.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/disconnectServer.png")));
+				DashboardUI.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/logot.jpg")));
 		toolBar.add(btnNewButton);
 
 		tree = new JTree();
 		tree.addTreeSelectionListener(new TreeSelectionListener() {
 			public void valueChanged(TreeSelectionEvent e) {
-				filesList1 = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
-				Object userObject = filesList1.getUserObject();
-				selectedFile = userObject.toString().trim();
-				btnNewButton_4.setEnabled(true);
-				btnNewButton_2.setEnabled(true);
-				btnNewButton_3.setEnabled(true);
-				System.out.println("You clicked on file : " + selectedFile);
+				selectedNode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+				if (selectedNode != null) {
+					Object userObject = selectedNode.getUserObject();
+					selectedFile = userObject.toString().trim();
+					btnNewButton_4.setEnabled(true);
+					btnNewButton_2.setEnabled(true);
+					btnNewButton_3.setEnabled(true);
+					System.out.println("You clicked on file : " + selectedFile);
+				}
 			}
 		});
 		// final DefaultTableModel model;
-		tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("Root") {
-			{
-				ImageIcon imageIcon = new ImageIcon(
-						DashboardUI.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/file.png"));
-				DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
-				renderer.setLeafIcon(imageIcon);
-				DefaultTableModel model = new DefaultTableModel();
-				mytable = new JTable(model);
-				mytable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-				mytable.setAutoCreateRowSorter(true);
-				mytable.setShowVerticalLines(false);
-				listSelectionListener = new ListSelectionListener() {
-					public void valueChanged(ListSelectionEvent lse) {
-						int row = mytable.getSelectionModel().getLeadSelectionIndex();
-						((FileTableModel) mytable.getModel()).getFile(row);
-					}
-				};
-				mytable.getSelectionModel().addListSelectionListener(listSelectionListener);
+		tree.setModel(this.getModel());
 
-				model.addColumn("UUID");
-				model.addColumn("FILENAME");
-				model.addColumn("SIZE");
-				filesList1 = new DefaultMutableTreeNode("My Files");
-				for (FileDetailsDTO dto : myFilelist) {
-					filesList1.add(new DefaultMutableTreeNode(dto.getName()));
-					model.addRow(new Object[] { dto.getUuid(), dto.getName(), dto.getSize() });
-				}
-				add(filesList1);
-				filesList2 = new DefaultMutableTreeNode("Received Shares");
-				for (FileDetailsDTO dto : myReceivedlist) {
-					filesList2.add(new DefaultMutableTreeNode(dto.getName()));
-					model.addRow(new Object[] { dto.getUuid(), dto.getName(), dto.getSize() });
-				}
-				add(filesList2);
-				JScrollPane sp = new JScrollPane(mytable);
-				frmAncheldashboard.getContentPane().add(sp);
-			}
-		}));
-
-		// This is used to disable the delete button on load
+		// This is used to disable the buttons on load
 		btnNewButton_4.setEnabled(false);
 		btnNewButton_2.setEnabled(false);
 		btnNewButton_3.setEnabled(false);
@@ -371,5 +249,139 @@ public class DashboardUI {
 						.addContainerGap()));
 		frmAncheldashboard.getContentPane().setLayout(groupLayout);
 
+	}
+
+	public void deleteFile() {
+		for (int i = 0; i < mytable.getRowCount(); i++) {
+			String jtablefile = mytable.getValueAt(i, 1).toString().trim();
+			if (selectedFile.equals(jtablefile)) {
+				String uuid = mytable.getValueAt(i, 0).toString();
+				System.out.println(
+						"Filename is : " + selectedFile + " and" + " corresponding UUID is : " + uuid);
+				ResponseObject resp = null;
+				resp = new DashboardController().deleteMyFiles(uuid, username);
+				if (resp.getStatus().equalsIgnoreCase(ApplicationConstants.getSuccess())) {
+					JOptionPane.showMessageDialog(null, " FILE '" + selectedFile + "' IS DELETED");
+				} else {
+					JOptionPane.showMessageDialog(null, "FILE '" + selectedFile + "' IS NOT EXIST");
+				}
+			}
+		}
+	}
+
+	public void renameFile() {
+		for (int i = 0; i < mytable.getRowCount(); i++) {
+			String jtablefile = mytable.getValueAt(i, 1).toString().trim();
+			if (selectedFile.equals(jtablefile)) {
+				String uuid = mytable.getValueAt(i, 0).toString();
+				System.out.println(
+						"Filename is : " + selectedFile + " and" + " corresponding UUID is : " + uuid);
+				String renameString = JOptionPane.showInputDialog("New Filename", selectedFile);
+				if (!renameString.equals("")) {
+					ResponseObject resp = null;
+					resp = new DashboardController().renameMyFiles(uuid, username, renameString);
+					if (resp.getStatus().equalsIgnoreCase(ApplicationConstants.getSuccess())) {
+						JOptionPane.showMessageDialog(null, "FILENAME CHANGED TO '" + renameString + "'");
+					} else {
+						JOptionPane.showMessageDialog(null, "SOMETHING WENT WRONG");
+					}
+				} else {
+					JOptionPane.showMessageDialog(null, "FILENAME SHOULD NOT BE EMPTY");
+				}
+			}
+		}
+	}
+
+	protected void downloadFile() {
+		for (int i = 0; i < mytable.getRowCount(); i++) {
+			String jtablefile = mytable.getValueAt(i, 1).toString().trim();
+			if (selectedFile.equals(jtablefile)) {
+				String uuid = mytable.getValueAt(i, 0).toString();
+				System.out.println("Filename is : " + selectedFile + " and" + " corresponding UUID is : " + uuid);
+
+				fileChoose = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
+				fileChoose.setDialogTitle("Choose Directory");
+				fileChoose.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+				int returnValue = fileChoose.showSaveDialog(null);
+				if (returnValue == JFileChooser.APPROVE_OPTION) {
+					if (fileChoose.getSelectedFile().isDirectory()) {
+						fileToDownload = fileChoose.getSelectedFile() + File.separator + selectedFile;
+						progressBar.setIndeterminate(true);
+						progressBar.setVisible(true);
+						resp = new DashboardController().downloadMyFiles(uuid, username);
+						if (resp.getStatus().equalsIgnoreCase(ApplicationConstants.getFailure())) {
+							JOptionPane.showMessageDialog(null, "SOMETHING WENT WRONG, FILE NOT DOWNLOADED");
+						} else {
+							InputStream is = resp.getInputStream();
+							try {
+								while (is.available() != 0) {
+									int bytesRead;
+									byte[] buffer = new byte[2048];
+									FileOutputStream os = new FileOutputStream(fileToDownload);
+									while ((bytesRead = is.read(buffer)) != -1) {
+										os.write(buffer, 0, bytesRead);
+									}
+									is.close();
+									os.close();
+								}
+								File downloaded = new File(fileToDownload);
+								if (downloaded != null && downloaded.exists() && downloaded.getTotalSpace() > 0) {
+									JOptionPane.showMessageDialog(null, "FILE '" + selectedFile + "' IS DOWNLOADED");
+								} else {
+									JOptionPane.showMessageDialog(null,
+											"FILE '" + selectedFile + "' IS NOT DOWNLOADED");
+								}
+							} catch (IOException e1) {
+								e1.printStackTrace();
+							}
+						}
+					}
+				}
+
+			}
+		}
+	}
+
+	public void reloadPage() {
+		myFilelist.clear();
+		myReceivedlist.clear();
+		getSharedFiles(username);
+		getMyFiles(username);
+		if (tree.getModel() != null && tree.getModel() instanceof DefaultTreeModel) {
+			tree.setModel(getModel());
+			((DefaultTreeModel) tree.getModel()).reload();
+			fileListNode = (DefaultMutableTreeNode) rootNode.getFirstChild();
+			tree.expandPath(new TreePath(fileListNode.getPath()));
+		}
+	}
+
+	private DefaultTreeModel getModel() {
+		rootNode = new DefaultMutableTreeNode("Root");
+		ImageIcon imageIcon = new ImageIcon(
+				DashboardUI.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/file.png"));
+		DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
+		renderer.setLeafIcon(imageIcon);
+		DefaultTableModel model = new DefaultTableModel();
+		mytable = new JTable(model);
+		model.addColumn("UUID");
+		model.addColumn("FILENAME");
+		model.addColumn("SIZE");
+		fileListNode = new DefaultMutableTreeNode("My Files");
+		for (FileDetailsDTO dto : myFilelist) {
+			fileListNode.add(new DefaultMutableTreeNode(dto.getName()));
+			model.addRow(new Object[] { dto.getUuid(), dto.getName(), dto.getSize() });
+		}
+		rootNode.add(fileListNode);
+		sharedListNode = new DefaultMutableTreeNode("Received Shares");
+		for (FileDetailsDTO dto : myReceivedlist) {
+			sharedListNode.add(new DefaultMutableTreeNode(dto.getName()));
+			model.addRow(new Object[] { dto.getUuid(), dto.getName(), dto.getSize() });
+		}
+		rootNode.add(sharedListNode);
+		JScrollPane sp = new JScrollPane(mytable);
+		frmAncheldashboard.getContentPane().add(sp);
+		if (rootNode != null)
+			treeModel = new DefaultTreeModel(rootNode);
+		return treeModel;
 	}
 }

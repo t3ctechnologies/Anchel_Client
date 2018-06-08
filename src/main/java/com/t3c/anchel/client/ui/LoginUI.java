@@ -116,8 +116,8 @@ public class LoginUI extends JFrame {
 		JButton btnOk = new JButton("OK");
 		btnOk.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				username = "root@localhost.localdomain";
-				String password = "adminlinshare";
+				username = "daya@t3c.io";
+				String password = "password1";
 				String url = comboBox.getItemAt(comboBox.getSelectedIndex()).toString();
 
 				if (username.equalsIgnoreCase("")) {
