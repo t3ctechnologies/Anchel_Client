@@ -1,5 +1,6 @@
 package com.t3c.anchel.client.wsclient.controller.dashboard;
 
+import java.io.File;
 import java.io.IOException;
 
 import javax.swing.JProgressBar;
@@ -74,6 +75,14 @@ public class DashboardController {
 		response = new ResponseObject();
 			response = new DashboardService().renameMyFiles(uuid, username, renameString);
 		OUT.info("RESP:Renaming myfiles file is completed.");
+		return response;
+	}
+
+	public ResponseObject uploadMyFiles(File file, String username) {
+		OUT.info("Uploading files to myfiles with file name: " + file + " is started.");
+		response = new ResponseObject();
+			response = new DashboardService().uploadMyFiles(file, username);
+			OUT.info("RESP: Uploading files to myfiles with file name: " + file + " is completed.");
 		return response;
 	}
 

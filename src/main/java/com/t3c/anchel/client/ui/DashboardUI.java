@@ -70,6 +70,7 @@ public class DashboardUI {
 	/**
 	 * This method is used to get the my files data from Backend
 	 */
+	@SuppressWarnings("unchecked")
 	private void getMyFiles(String username) {
 		ResponseObject resp = null;
 		resp = new DashboardController().getMyFiles(username);
@@ -104,6 +105,7 @@ public class DashboardUI {
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				reloadPage();
+				JOptionPane.showMessageDialog(null, "File Sync is Done");
 			}
 		});
 		btnNewButton_1.setToolTipText("Refresh");
@@ -127,6 +129,8 @@ public class DashboardUI {
 					int returnVal = fileChoose.showOpenDialog(null);
 					if (returnVal == JFileChooser.APPROVE_OPTION) {
 						File file = fileChoose.getSelectedFile();
+						uploadfile(file);
+						reloadPage();
 					}
 				}
 			}
@@ -143,6 +147,7 @@ public class DashboardUI {
 					progressBar.setIndeterminate(true);
 					progressBar.setVisible(true);
 					downloadFile();
+					reloadPage();
 				}
 				progressBar.setVisible(false);
 			}
@@ -157,6 +162,7 @@ public class DashboardUI {
 			public void actionPerformed(ActionEvent e) {
 				if (btnNewButton_3.isEnabled()) {
 					renameFile();
+					reloadPage();
 				}
 			}
 		});
@@ -169,7 +175,13 @@ public class DashboardUI {
 		btnNewButton_4.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (btnNewButton_4.isEnabled()) {
-					deleteFile();
+					int dialogResult = JOptionPane.showConfirmDialog(null,
+							"Are you sure you want to delete " +selectedFile +" file?", "Warning",
+							JOptionPane.WARNING_MESSAGE);
+					if (dialogResult == JOptionPane.YES_OPTION) {
+						deleteFile();
+						reloadPage();
+					}
 				}
 			}
 		});
@@ -215,6 +227,7 @@ public class DashboardUI {
 					btnNewButton_4.setEnabled(true);
 					btnNewButton_2.setEnabled(true);
 					btnNewButton_3.setEnabled(true);
+					btnNewButton_6.setEnabled(true);
 					System.out.println("You clicked on file : " + selectedFile);
 				}
 			}
@@ -226,6 +239,7 @@ public class DashboardUI {
 		btnNewButton_4.setEnabled(false);
 		btnNewButton_2.setEnabled(false);
 		btnNewButton_3.setEnabled(false);
+		btnNewButton_6.setEnabled(false);
 
 		progressBar = new JProgressBar(0, 2000);
 		progressBar.setToolTipText("Your File is Downloading...");
@@ -251,13 +265,21 @@ public class DashboardUI {
 
 	}
 
+	public void uploadfile(File file) {
+		resp = new DashboardController().uploadMyFiles(file, username);
+		if (resp.getStatus().equalsIgnoreCase(ApplicationConstants.getSuccess())) {
+			JOptionPane.showMessageDialog(null, " FILE '" + file.getName() + "' IS UPLOADED SUCCESSFULLY");
+		} else {
+			JOptionPane.showMessageDialog(null, "SOMETHING WENT WRONG");
+		}
+	}
+
 	public void deleteFile() {
 		for (int i = 0; i < mytable.getRowCount(); i++) {
 			String jtablefile = mytable.getValueAt(i, 1).toString().trim();
 			if (selectedFile.equals(jtablefile)) {
 				String uuid = mytable.getValueAt(i, 0).toString();
-				System.out.println(
-						"Filename is : " + selectedFile + " and" + " corresponding UUID is : " + uuid);
+				System.out.println("Filename is : " + selectedFile + " and" + " corresponding UUID is : " + uuid);
 				ResponseObject resp = null;
 				resp = new DashboardController().deleteMyFiles(uuid, username);
 				if (resp.getStatus().equalsIgnoreCase(ApplicationConstants.getSuccess())) {
@@ -274,8 +296,7 @@ public class DashboardUI {
 			String jtablefile = mytable.getValueAt(i, 1).toString().trim();
 			if (selectedFile.equals(jtablefile)) {
 				String uuid = mytable.getValueAt(i, 0).toString();
-				System.out.println(
-						"Filename is : " + selectedFile + " and" + " corresponding UUID is : " + uuid);
+				System.out.println("Filename is : " + selectedFile + " and" + " corresponding UUID is : " + uuid);
 				String renameString = JOptionPane.showInputDialog("New Filename", selectedFile);
 				if (!renameString.equals("")) {
 					ResponseObject resp = null;
