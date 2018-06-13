@@ -281,7 +281,7 @@ public class DashboardUI {
 				String uuid = mytable.getValueAt(i, 0).toString();
 				System.out.println("Filename is : " + selectedFile + " and" + " corresponding UUID is : " + uuid);
 				ResponseObject resp = null;
-				resp = new DashboardController().deleteMyFiles(uuid, username);
+				//resp = new DashboardController().deleteMyFiles(uuid, username);
 				if (resp.getStatus().equalsIgnoreCase(ApplicationConstants.getSuccess())) {
 					JOptionPane.showMessageDialog(null, " FILE '" + selectedFile + "' IS DELETED");
 				} else {
@@ -329,7 +329,7 @@ public class DashboardUI {
 						fileToDownload = fileChoose.getSelectedFile() + File.separator + selectedFile;
 						progressBar.setIndeterminate(true);
 						progressBar.setVisible(true);
-						resp = new DashboardController().downloadMyFiles(uuid, username);
+						//resp = new DashboardController().downloadMyFiles(uuid, username);
 						if (resp.getStatus().equalsIgnoreCase(ApplicationConstants.getFailure())) {
 							JOptionPane.showMessageDialog(null, "SOMETHING WENT WRONG, FILE NOT DOWNLOADED");
 						} else {

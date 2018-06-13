@@ -43,11 +43,11 @@ public class DashboardController {
 		return response;
 	}
 
-	public ResponseObject deleteMyFiles(String uuid, String username) {
+	public ResponseObject deleteMyFiles(String uuid, String username, String selectedNodeName) {
 		OUT.info("Deleting myfiles file with a uuid: " + uuid + " is started.");
 		try {
 			response = new ResponseObject();
-			response.setResponseObject(new DashboardService().deleteMyFiles(uuid, username));
+			response.setResponseObject(new DashboardService().deleteMyFiles(uuid, username, selectedNodeName));
 			response.setStatus(ApplicationConstants.getSuccess());
 		} catch (Exception e) {
 			OUT.error(e.getStackTrace());
@@ -57,11 +57,11 @@ public class DashboardController {
 		return response;
 	}
 
-	public ResponseObject downloadMyFiles(String uuid, String username) {
+	public ResponseObject downloadMyFiles(String uuid, String username, String selectedNodeName) {
 		OUT.info("Downloading myfiles file with a uuid: " + uuid + " is started.");
 		response = new ResponseObject();
 			try {
-				response = new DashboardService().downloadMyFiles(uuid, username);
+				response = new DashboardService().downloadMyFiles(uuid, username, selectedNodeName);
 			} catch (IOException e) {
 				response.setStatus(ApplicationConstants.getFailure());
 				e.printStackTrace();

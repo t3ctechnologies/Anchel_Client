@@ -130,7 +130,7 @@ public class LoginUI extends JFrame {
 					ResponseObject status = new LoginController().isAuthorised(username, password, url);
 					if (status != null && status.getStatus().equalsIgnoreCase(ApplicationConstants.getSuccess())) {
 						frmLogin.dispose();
-						new DashboardUI(username);
+						new Dashboard(username);
 					} else {
 						JOptionPane.showMessageDialog(panel, "Something went wrong!\n contact your administrator.",
 								"Error", JOptionPane.ERROR_MESSAGE);

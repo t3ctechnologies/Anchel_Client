@@ -91,7 +91,7 @@ public class DashboardService {
 		return sharedFiles;
 	}
 
-	public Object deleteMyFiles(String uuid, String username)
+	public Object deleteMyFiles(String uuid, String username, String selectedNodeName)
 			throws JsonParseException, JsonMappingException, IOException {
 		mapper = new ObjectMapper();
 		urlBuffer = new StringBuilder();
@@ -99,7 +99,12 @@ public class DashboardService {
 		String auth64 = UserSessionCache.getInstance().doGet(username + "_base");
 
 		urlBuffer.append(baseURL);
-		urlBuffer.append(ApplicationConstants.MY_FILE);
+		if(selectedNodeName.equalsIgnoreCase("My Files")){
+			urlBuffer.append(ApplicationConstants.MY_FILE);
+		}
+		else if (selectedNodeName.equalsIgnoreCase("Received Files")) {
+			urlBuffer.append(ApplicationConstants.RECEIVED_FILE);
+		}
 		urlBuffer.append("/" + uuid);
 		Client restClient = Client.create();
 		WebResource webResource = restClient.resource(urlBuffer.toString());
@@ -116,14 +121,19 @@ public class DashboardService {
 		return fileDetailsDTO;
 	}
 
-	public ResponseObject downloadMyFiles(String uuid, String username) throws IOException {
+	public ResponseObject downloadMyFiles(String uuid, String username, String selectedNodeName) throws IOException {
 		mapper = new ObjectMapper();
 		urlBuffer = new StringBuilder();
 		String baseURL = UserSessionCache.getInstance().doGet(username + "_url");
 		String auth64 = UserSessionCache.getInstance().doGet(username + "_base");
 
 		urlBuffer.append(baseURL);
-		urlBuffer.append(ApplicationConstants.MY_FILE);
+		if(selectedNodeName.equalsIgnoreCase("My Files")){
+			urlBuffer.append(ApplicationConstants.MY_FILE);
+		}
+		else if (selectedNodeName.equalsIgnoreCase("Received Files")) {
+			urlBuffer.append(ApplicationConstants.RECEIVED_FILE);
+		}
 		urlBuffer.append("/" + uuid);
 		urlBuffer.append("/" + "download");
 		Client restClient = Client.create();
