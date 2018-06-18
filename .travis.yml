@@ -7,4 +7,5 @@ deploy:
   access_key_id: $ACCESS_KEY
   secret_access_key: $SECRET_KEY
   bucket: "anchel-client"
+  local_dir: /home/travis/build/t3ctechnologies/Anchel_Client/target/Anchel_Client-1.0-jar-with-dependencies.jar
   
