@@ -8,4 +8,5 @@ deploy:
   secret_access_key: $SECRET_KEY
   bucket: "anchel-client"
   local_dir: /home/travis/build/t3ctechnologies/Anchel_Client/target
+  skip_cleanup: true
   
