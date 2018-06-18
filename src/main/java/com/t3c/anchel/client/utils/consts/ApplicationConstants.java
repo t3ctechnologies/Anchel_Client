@@ -5,7 +5,7 @@ public class ApplicationConstants
 	// Production or Development
 	// Production - ""
 	// Development - "/com/t3c/anchel/client/utils/images"
-	private static final String	DEV_PROD		= "/com/t3c/anchel/client/utils/images";
+	private static final String	DEV_PROD		= "";
 
 	private static final String	SUCCESS			= "SUCCESS";
 	private static final String	FAILURE			= "FAILURE";
