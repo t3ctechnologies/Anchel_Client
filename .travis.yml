@@ -4,7 +4,7 @@ install: true
 script: mvn clean package assembly:single
 deploy:
   provider: s3
-  access_key_id: "YOUR AWS ACCESS KEY"
-  secret_access_key: "YOUR AWS SECRET KEY"
+  access_key_id: $ACCESS_KEY
+  secret_access_key: $SECRET_KEY
   bucket: "anchel-client"
   
