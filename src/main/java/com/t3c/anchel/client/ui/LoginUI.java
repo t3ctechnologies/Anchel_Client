@@ -13,31 +13,37 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
-import javax.swing.border.TitledBorder;
 
 import com.t3c.anchel.client.model.common.ResponseObject;
 import com.t3c.anchel.client.utils.consts.ApplicationConstants;
 import com.t3c.anchel.client.wsclient.controller.auth.LoginController;
 
-public class LoginUI extends JFrame {
+public class LoginUI extends JFrame
+{
 
-	private JFrame frmLogin;
-	private JTextField textField;
-	private JPasswordField textField_1;
-	private JTextField txtSs;
-	private JPanel panel;
-	private String username = null;
+	private JFrame			frmLogin;
+	private JTextField		textField;
+	private JPasswordField	textField_1;
+	private JTextField		txtSs;
+	private JPanel			panel;
+	private String			username	= null;
 
 	/**
 	 * Launch the application.
 	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
+	public static void main(String[] args)
+	{
+		EventQueue.invokeLater(new Runnable()
+		{
+			public void run()
+			{
+				try
+				{
 					LoginUI window = new LoginUI();
 					window.frmLogin.setVisible(true);
-				} catch (Exception e) {
+				}
+				catch (Exception e)
+				{
 					e.printStackTrace();
 				}
 			}
@@ -47,7 +53,8 @@ public class LoginUI extends JFrame {
 	/**
 	 * Create the application.
 	 */
-	public LoginUI() {
+	public LoginUI()
+	{
 		initialize();
 		frmLogin.setVisible(true);
 	}
@@ -55,7 +62,8 @@ public class LoginUI extends JFrame {
 	/**
 	 * Initialize the contents of the frame.
 	 */
-	private void initialize() {
+	private void initialize()
+	{
 		// this.pack();
 		frmLogin = new JFrame();
 		frmLogin.setResizable(false);
@@ -90,12 +98,14 @@ public class LoginUI extends JFrame {
 		textField_1.setColumns(10);
 
 		JLabel lblNewLabel = new JLabel("");
-		lblNewLabel.setIcon(
-				new ImageIcon(LoginUI.class.getResource("/com/t3c/anchel/client/utils/images/login/logo.png")));
+		lblNewLabel.setIcon(new ImageIcon(LoginUI.class.getResource(ApplicationConstants.LOGIN_IMAGE1)));
 		lblNewLabel.setBounds(200, 11, 335, 145);
 		panel.add(lblNewLabel);
 
-		String url[] = { "http://localhost:8080" };
+		String url[] =
+		{
+			"http://localhost:8080"
+		};
 		final JComboBox comboBox = new JComboBox(url);
 		comboBox.setBounds(10, 114, 160, 20);
 		panel.add(comboBox);
@@ -107,33 +117,46 @@ public class LoginUI extends JFrame {
 		JButton btnNewButton = new JButton("Cancel");
 		btnNewButton.setBounds(465, 229, 89, 23);
 		frmLogin.getContentPane().add(btnNewButton);
-		btnNewButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+		btnNewButton.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
 				frmLogin.dispose();
 			}
 		});
 
 		JButton btnOk = new JButton("OK");
-		btnOk.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+		btnOk.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
 				username = "root@localhost.localdomain";
 				String password = "adminlinshare";
 				String url = comboBox.getItemAt(comboBox.getSelectedIndex()).toString();
 
-				if (username.equalsIgnoreCase("")) {
+				if (username.equalsIgnoreCase(""))
+				{
 					JOptionPane.showMessageDialog(panel, "Username is required", "Error", JOptionPane.ERROR_MESSAGE);
-				} else if (password.equalsIgnoreCase("")) {
+				}
+				else if (password.equalsIgnoreCase(""))
+				{
 					JOptionPane.showMessageDialog(panel, "Password is required", "Error", JOptionPane.ERROR_MESSAGE);
-				} else if (url.equalsIgnoreCase("")) {
+				}
+				else if (url.equalsIgnoreCase(""))
+				{
 					JOptionPane.showMessageDialog(panel, "Server URL is required", "Error", JOptionPane.ERROR_MESSAGE);
-				} else {
+				}
+				else
+				{
 					ResponseObject status = new LoginController().isAuthorised(username, password, url);
-					if (status != null && status.getStatus().equalsIgnoreCase(ApplicationConstants.getSuccess())) {
+					if (status != null && status.getStatus().equalsIgnoreCase(ApplicationConstants.getSuccess()))
+					{
 						frmLogin.dispose();
 						new Dashboard(username);
-					} else {
-						JOptionPane.showMessageDialog(panel, "Something went wrong!\n contact your administrator.",
-								"Error", JOptionPane.ERROR_MESSAGE);
+					}
+					else
+					{
+						JOptionPane.showMessageDialog(panel, "Something went wrong!\n contact your administrator.", "Error", JOptionPane.ERROR_MESSAGE);
 					}
 				}
 			}

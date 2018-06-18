@@ -14,6 +14,8 @@ import javax.swing.JPanel;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
+import com.t3c.anchel.client.utils.consts.ApplicationConstants;
+
 public class AboutUI
 {
 
@@ -65,7 +67,7 @@ public class AboutUI
 
 		JLabel lblNewLabel = new JLabel("");
 		lblNewLabel.setBounds(15, 25, 40, 39);
-		lblNewLabel.setIcon(new ImageIcon(AboutUI.class.getResource("/com/t3c/anchel/client/utils/images/about/icon-01.png")));
+		lblNewLabel.setIcon(new ImageIcon(AboutUI.class.getResource(ApplicationConstants.LOGO1_IMG)));
 		frmAbout.getContentPane().add(lblNewLabel);
 
 		JLabel lblNewLabel_1 = new JLabel("Version 1.0 (Build 10)");
