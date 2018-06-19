@@ -9,12 +9,13 @@ import java.util.UUID;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
@@ -26,6 +27,7 @@ import com.sun.jersey.multipart.MultiPart;
 import com.sun.jersey.multipart.file.FileDataBodyPart;
 import com.t3c.anchel.client.model.common.ResponseObject;
 import com.t3c.anchel.client.model.dashboard.FileDetailsDTO;
+import com.t3c.anchel.client.model.dashboard.WorkGroupDTO;
 import com.t3c.anchel.client.utils.consts.ApplicationConstants;
 import com.t3c.anchel.client.wsclient.controller.auth.UserSessionCache;
 
@@ -99,10 +101,9 @@ public class DashboardService {
 		String auth64 = UserSessionCache.getInstance().doGet(username + "_base");
 
 		urlBuffer.append(baseURL);
-		if(selectedNodeName.equalsIgnoreCase("My Files")){
+		if (selectedNodeName.equalsIgnoreCase("My Files")) {
 			urlBuffer.append(ApplicationConstants.MY_FILE);
-		}
-		else if (selectedNodeName.equalsIgnoreCase("Received Files")) {
+		} else if (selectedNodeName.equalsIgnoreCase("Received Files")) {
 			urlBuffer.append(ApplicationConstants.RECEIVED_FILE);
 		}
 		urlBuffer.append("/" + uuid);
@@ -128,10 +129,9 @@ public class DashboardService {
 		String auth64 = UserSessionCache.getInstance().doGet(username + "_base");
 
 		urlBuffer.append(baseURL);
-		if(selectedNodeName.equalsIgnoreCase("My Files")){
+		if (selectedNodeName.equalsIgnoreCase("My Files")) {
 			urlBuffer.append(ApplicationConstants.MY_FILE);
-		}
-		else if (selectedNodeName.equalsIgnoreCase("Received Files")) {
+		} else if (selectedNodeName.equalsIgnoreCase("Received Files")) {
 			urlBuffer.append(ApplicationConstants.RECEIVED_FILE);
 		}
 		urlBuffer.append("/" + uuid);
@@ -155,23 +155,21 @@ public class DashboardService {
 
 	}
 
-	public ResponseObject renameMyFiles(String uuid, String username, String renameString) {
+	public ResponseObject renameMyFiles(String uuid, String username, String renameString) throws JSONException {
 		mapper = new ObjectMapper();
 		response = new ResponseObject();
 		urlBuffer = new StringBuilder();
 		String baseURL = UserSessionCache.getInstance().doGet(username + "_url");
 		String auth64 = UserSessionCache.getInstance().doGet(username + "_base");
-		Gson gson = new Gson();
-		FileDetailsDTO detailsDTO = new FileDetailsDTO();
-		detailsDTO.setName(renameString);
-		String jsonInString = gson.toJson(detailsDTO);
+		JSONObject json = new JSONObject();
+		json.put("name", renameString);
 		urlBuffer.append(baseURL);
 		urlBuffer.append(ApplicationConstants.MY_FILE);
 		urlBuffer.append("/" + uuid);
 		Client restClient = Client.create();
 		WebResource webResource = restClient.resource(urlBuffer.toString());
-		ClientResponse resp = webResource.accept("application/json").header("Authorization", "Basic " + auth64)
-				.type("application/json").put(ClientResponse.class, jsonInString);
+		ClientResponse resp = webResource.accept("application/json").header("Authorization", "Basic" + auth64)
+				.type("application/json").put(ClientResponse.class, json.toString());
 		if (resp.getStatus() != 200) {
 			OUT.error("File Downloading is Failed");
 			response.setStatus(ApplicationConstants.getFailure());
@@ -223,12 +221,120 @@ public class DashboardService {
 		if (resp.getStatus() == 200) {
 			OUT.info("File uploading is success");
 			response.setStatus(ApplicationConstants.getSuccess());
-		}
-		else {
+		} else {
 			OUT.error("File upload is failed " + resp.getStatusInfo());
 			response.setStatus(ApplicationConstants.getFailure());
 		}
 
+		return response;
+	}
+
+	public List<WorkGroupDTO> getWorkgroups(String username)
+			throws JsonParseException, JsonMappingException, IOException {
+		mapper = new ObjectMapper();
+		urlBuffer = new StringBuilder();
+		String baseURL = UserSessionCache.getInstance().doGet(username + "_url");
+		String auth64 = UserSessionCache.getInstance().doGet(username + "_base");
+
+		urlBuffer.append(baseURL);
+		urlBuffer.append(ApplicationConstants.WORK_GROUP);
+		Client restClient = Client.create();
+		WebResource webResource = restClient.resource(urlBuffer.toString());
+		ClientResponse resp = webResource.accept("application/json").header("Authorization", "Basic " + auth64)
+				.get(ClientResponse.class);
+		if (resp.getStatus() != 200) {
+			OUT.error("Unable to connect to the server");
+		}
+		String jsonString = resp.getEntity(String.class);
+		List<WorkGroupDTO> workGroupDTOs = mapper.readValue(jsonString, new TypeReference<List<WorkGroupDTO>>() {
+		});
+		if (restClient != null) {
+			restClient.destroy();
+		}
+		OUT.debug("Getting a workgroup for user :" + username + " found :"
+				+ (workGroupDTOs.size() > 0 ? workGroupDTOs.size() : "NOT FOUND"));
+		return workGroupDTOs;
+	}
+
+	public List<WorkGroupDTO> getWorkgroupFolders(String workGroupUuid, String username)
+			throws JsonParseException, JsonMappingException, IOException {
+		mapper = new ObjectMapper();
+		urlBuffer = new StringBuilder();
+		String baseURL = UserSessionCache.getInstance().doGet(username + "_url");
+		String auth64 = UserSessionCache.getInstance().doGet(username + "_base");
+
+		urlBuffer.append(baseURL);
+		urlBuffer.append(ApplicationConstants.WORK_GROUP);
+		urlBuffer.append("/" + workGroupUuid + "/nodes");
+		Client restClient = Client.create();
+		WebResource webResource = restClient.resource(urlBuffer.toString());
+		ClientResponse resp = webResource.accept("application/json").header("Authorization", "Basic " + auth64)
+				.get(ClientResponse.class);
+		if (resp.getStatus() != 200) {
+			OUT.error("Unable to connect to the server");
+		}
+		String jsonString = resp.getEntity(String.class);
+		List<WorkGroupDTO> workGroupDTOs = mapper.readValue(jsonString, new TypeReference<List<WorkGroupDTO>>() {
+		});
+		if (restClient != null) {
+			restClient.destroy();
+		}
+		OUT.debug("Getting a workgroup folder details for user :" + username + " found :"
+				+ (workGroupDTOs.size() > 0 ? workGroupDTOs.size() : "NOT FOUND"));
+		return workGroupDTOs;
+	}
+
+	public List<WorkGroupDTO> getWorkgroupFiles(String workGroupUuid, String folderUuid, String username)
+			throws JsonParseException, JsonMappingException, IOException {
+		mapper = new ObjectMapper();
+		urlBuffer = new StringBuilder();
+		String baseURL = UserSessionCache.getInstance().doGet(username + "_url");
+		String auth64 = UserSessionCache.getInstance().doGet(username + "_base");
+
+		urlBuffer.append(baseURL);
+		urlBuffer.append(ApplicationConstants.WORK_GROUP);
+		urlBuffer.append("/" + workGroupUuid + "/nodes?parent=" + folderUuid);
+		Client restClient = Client.create();
+		WebResource webResource = restClient.resource(urlBuffer.toString());
+		ClientResponse resp = webResource.accept("application/json").header("Authorization", "Basic " + auth64)
+				.get(ClientResponse.class);
+		if (resp.getStatus() != 200) {
+			OUT.error("Unable to connect to the server");
+		}
+		String jsonString = resp.getEntity(String.class);
+		List<WorkGroupDTO> workGroupDTOs = mapper.readValue(jsonString, new TypeReference<List<WorkGroupDTO>>() {
+		});
+		if (restClient != null) {
+			restClient.destroy();
+		}
+		OUT.debug("Getting a workgroup folder details for user :" + username + " found :"
+				+ (workGroupDTOs.size() > 0 ? workGroupDTOs.size() : "NOT FOUND"));
+		return workGroupDTOs;
+	}
+
+	public ResponseObject createWorkgroup(String workgroupName, String username) throws JSONException {
+		mapper = new ObjectMapper();
+		response = new ResponseObject();
+		urlBuffer = new StringBuilder();
+		String baseURL = UserSessionCache.getInstance().doGet(username + "_url");
+		String auth64 = UserSessionCache.getInstance().doGet(username + "_base");
+		JSONObject json = new JSONObject();
+		json.put("name", workgroupName);
+		urlBuffer.append(baseURL);
+		urlBuffer.append(ApplicationConstants.WORK_GROUP);
+		Client restClient = Client.create();
+		WebResource webResource = restClient.resource(urlBuffer.toString());
+		ClientResponse resp = webResource.accept("application/json").header("Authorization", "Basic " + auth64)
+				.type("application/json").post(ClientResponse.class, json.toString());
+		if (resp.getStatus() != 200) {
+			OUT.error("Creation of workgroup is Failed");
+			response.setStatus(ApplicationConstants.getFailure());
+		} else {
+			response.setStatus(ApplicationConstants.getSuccess());
+		}
+		if (restClient != null) {
+			restClient.destroy();
+		}
 		return response;
 	}
 }

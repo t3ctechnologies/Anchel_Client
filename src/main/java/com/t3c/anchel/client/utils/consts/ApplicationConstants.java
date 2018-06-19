@@ -10,6 +10,7 @@ public class ApplicationConstants
 	public static final String	MY_FILE	= "/linshare/webservice/rest/user/v2/documents";
 	public static final String RECEIVED_FILE	= "/linshare/webservice/rest/user/v2/received_shares";
 	public static final String UPLOAD_FILE	= "/linshare/webservice/rest/user/v2/flow.json";
+	public static final String WORK_GROUP	= "/linshare/webservice/rest/user/v2/work_groups";
 	
 	public static String getSuccess()
 	{
