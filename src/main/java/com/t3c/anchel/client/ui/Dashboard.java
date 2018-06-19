@@ -40,7 +40,6 @@ import com.t3c.anchel.client.utils.consts.ApplicationConstants;
 import com.t3c.anchel.client.wsclient.controller.auth.UserSessionCache;
 import com.t3c.anchel.client.wsclient.controller.dashboard.DashboardController;
 
-<<<<<<< HEAD
 public class Dashboard {
 
 	private JFrame anchelFrame;
@@ -59,27 +58,6 @@ public class Dashboard {
 	private JButton downloadbtn, uploadbtn, deletebtn, renamebtn, logout, refreshbtn, addworkgroupbtn;
 
 	public Dashboard(String username) {
-=======
-public class Dashboard
-{
-
-	private JFrame					anchelFrame;
-	private String					username, selectedNodeName;
-	private String					selectedFileId, selectedFile, fileToDownload;
-	private JTable					table;
-	private JTree					tree;
-	private JScrollPane				scrollPane_2;
-	private List<FileDetailsDTO>	myFilelist, myReceivedlist, nullList = null;
-	private ResponseObject			resp	= null;
-	private JFileChooser			fileChoose;
-	private DefaultTreeModel		treeModel;
-	private DefaultTableModel		model;
-	private DefaultMutableTreeNode	rootnode, mySpace, myFiles, receiveFiles, selectedNode;
-	private JButton					downloadbtn, uploadbtn, deletebtn, renamebtn, logout, refreshbtn;
-
-	public Dashboard(String username)
-	{
->>>>>>> 5c90bc27ff824d860bbbd0f77881d4ecec4df19c
 		this.username = username;
 		initialize();
 		anchelFrame.setVisible(true);
@@ -107,16 +85,9 @@ public class Dashboard
 	 * This method is used to get the my files data from Backend
 	 */
 	@SuppressWarnings("unchecked")
-<<<<<<< HEAD
 	private void getMyFiles(String username) {
-=======
-	private void getMyFiles(String username)
-	{
-		ResponseObject resp = null;
->>>>>>> 5c90bc27ff824d860bbbd0f77881d4ecec4df19c
 		resp = new DashboardController().getMyFiles(username);
-		if (resp.getStatus().equalsIgnoreCase(ApplicationConstants.getSuccess()))
-		{
+		if (resp.getStatus().equalsIgnoreCase(ApplicationConstants.getSuccess())) {
 			myFilelist = (List<FileDetailsDTO>) resp.getResponseObject();
 		}
 	}
@@ -124,23 +95,15 @@ public class Dashboard
 	/**
 	 * This method is used to get the shared files data from Backend
 	 */
-<<<<<<< HEAD
 	@SuppressWarnings("unchecked")
 	private void getSharedFiles(String username) {
-=======
-	private void getSharedFiles(String username)
-	{
-		ResponseObject resp = null;
->>>>>>> 5c90bc27ff824d860bbbd0f77881d4ecec4df19c
 		resp = new DashboardController().getReceivedFiles(username);
-		if (resp.getStatus().equalsIgnoreCase(ApplicationConstants.getSuccess()))
-		{
+		if (resp.getStatus().equalsIgnoreCase(ApplicationConstants.getSuccess())) {
 			myReceivedlist = (List<FileDetailsDTO>) resp.getResponseObject();
 		}
 	}
 
-	public void initialize()
-	{
+	public void initialize() {
 		anchelFrame = new JFrame("Anchel");
 		anchelFrame.setBounds(100, 100, 627, 421);
 		anchelFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -198,16 +161,12 @@ public class Dashboard
 		splitPane_1.setLeftComponent(toolBar_1);
 
 		uploadbtn = new JButton("");
-		uploadbtn.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				if (e.getSource() == uploadbtn)
-				{
+		uploadbtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (e.getSource() == uploadbtn) {
 					fileChoose = new JFileChooser();
 					int returnVal = fileChoose.showOpenDialog(null);
-					if (returnVal == JFileChooser.APPROVE_OPTION)
-					{
+					if (returnVal == JFileChooser.APPROVE_OPTION) {
 						File file = fileChoose.getSelectedFile();
 						uploadFiles(file);
 						reloadFiles();
@@ -216,77 +175,64 @@ public class Dashboard
 			}
 		});
 		uploadbtn.setToolTipText("Upload");
-		uploadbtn.setIcon(new ImageIcon(Dashboard.class.getResource(ApplicationConstants.UPLOAD_IMG)));
+		uploadbtn.setIcon(new ImageIcon(
+				Dashboard.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/uploads.png")));
 		toolBar_1.add(uploadbtn);
 
 		downloadbtn = new JButton("");
-		downloadbtn.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				if (downloadbtn.isEnabled())
-				{
+		downloadbtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (downloadbtn.isEnabled()) {
 					downloadFiles();
 					reloadFiles();
 				}
 			}
 		});
 		downloadbtn.setToolTipText("Download");
-		downloadbtn.setIcon(new ImageIcon(Dashboard.class.getResource(ApplicationConstants.DOWNLOAD_IMG)));
+		downloadbtn.setIcon(new ImageIcon(
+				Dashboard.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/download.png")));
 		toolBar_1.add(downloadbtn);
 
 		deletebtn = new JButton("");
-<<<<<<< HEAD
 		deletebtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int dialogResult = JOptionPane.showConfirmDialog(null,
 						"Are you sure you want to delete " + selectedFile + " file?", "Warning",
-=======
-		deletebtn.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				int dialogResult = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete " + selectedFile + " file?", "Warning",
->>>>>>> 5c90bc27ff824d860bbbd0f77881d4ecec4df19c
 						JOptionPane.WARNING_MESSAGE);
-				if (dialogResult == JOptionPane.YES_OPTION)
-				{
+				if (dialogResult == JOptionPane.YES_OPTION) {
 					deleteFiles();
 					reloadFiles();
 				}
 			}
 		});
 		deletebtn.setToolTipText("Delete");
-		deletebtn.setIcon(new ImageIcon(Dashboard.class.getResource(ApplicationConstants.DELETE_IMG)));
+		deletebtn.setIcon(
+				new ImageIcon(Dashboard.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/delete.png")));
 		toolBar_1.add(deletebtn);
 
 		renamebtn = new JButton("");
-		renamebtn.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				if (renamebtn.isEnabled())
-				{
+		renamebtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (renamebtn.isEnabled()) {
 					renameFiles();
 					reloadFiles();
 				}
 			}
 		});
 		renamebtn.setToolTipText("Rename");
-		renamebtn.setIcon(new ImageIcon(Dashboard.class.getResource(ApplicationConstants.RENAME_IMG)));
+		renamebtn.setIcon(
+				new ImageIcon(Dashboard.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/rename.png")));
 		toolBar_1.add(renamebtn);
 
 		toolBar_1.add(Box.createHorizontalGlue());
 
 		logout = new JButton("");
-		logout.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				int dialogResult = JOptionPane.showConfirmDialog(null, "Are you sure you want to disconnect the current connection?", "Warning",
+		logout.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int dialogResult = JOptionPane.showConfirmDialog(null,
+						"Are you sure you want to disconnect the current connection?", "Warning",
 						JOptionPane.WARNING_MESSAGE);
-				if (dialogResult == JOptionPane.YES_OPTION)
-				{
+				if (dialogResult == JOptionPane.YES_OPTION) {
 					UserSessionCache.getInstance().doDelete(username);
 					anchelFrame.dispose();
 					new LoginUI();
@@ -294,7 +240,8 @@ public class Dashboard
 			}
 		});
 		logout.setToolTipText("Logout");
-		logout.setIcon(new ImageIcon(Dashboard.class.getResource(ApplicationConstants.LOGOUT_IMG)));
+		logout.setIcon(
+				new ImageIcon(Dashboard.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/logot.jpg")));
 		toolBar_1.add(logout);
 
 		scrollPane_2 = new JScrollPane();
@@ -309,16 +256,15 @@ public class Dashboard
 		splitPane_2.setLeftComponent(toolBar);
 
 		refreshbtn = new JButton("");
-		refreshbtn.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
+		refreshbtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				reloadFiles();
 				JOptionPane.showMessageDialog(null, "File Sync is Completed");
 			}
 		});
 		refreshbtn.setToolTipText("Refresh");
-		refreshbtn.setIcon(new ImageIcon(Dashboard.class.getResource(ApplicationConstants.REFRESH_IMG)));
+		refreshbtn.setIcon(new ImageIcon(
+				Dashboard.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/refresh.png")));
 		toolBar.add(refreshbtn);
 		
 		
@@ -364,91 +310,61 @@ public class Dashboard
 		addworkgroupbtn.setEnabled(false);
 	}
 
-	public void renameFiles()
-	{
+	public void renameFiles() {
 		String renameString = JOptionPane.showInputDialog("New Filename", selectedFile);
-		if (!renameString.equals(""))
-		{
+		if (!renameString.equals("")) {
 			ResponseObject resp = null;
 			resp = new DashboardController().renameMyFiles(selectedFileId, username, renameString);
-			if (resp.getStatus().equalsIgnoreCase(ApplicationConstants.getSuccess()))
-			{
+			if (resp.getStatus().equalsIgnoreCase(ApplicationConstants.getSuccess())) {
 				JOptionPane.showMessageDialog(null, "FILENAME CHANGED TO '" + renameString + "'");
-			}
-			else
-			{
+			} else {
 				JOptionPane.showMessageDialog(null, "SOMETHING WENT WRONG");
 			}
-		}
-		else
-		{
+		} else {
 			JOptionPane.showMessageDialog(null, "FILENAME SHOULD NOT BE EMPTY");
 		}
 	}
 
-	public void deleteFiles()
-	{
+	public void deleteFiles() {
 		resp = new DashboardController().deleteMyFiles(selectedFileId, username, selectedNodeName);
-		if (resp.getStatus().equalsIgnoreCase(ApplicationConstants.getSuccess()))
-		{
+		if (resp.getStatus().equalsIgnoreCase(ApplicationConstants.getSuccess())) {
 			JOptionPane.showMessageDialog(null, " FILE '" + selectedFile + "' IS DELETED");
-		}
-		else
-		{
+		} else {
 			JOptionPane.showMessageDialog(null, "FILE '" + selectedFile + "' IS NOT EXIST");
 		}
 	}
 
-	public void downloadFiles()
-	{
+	public void downloadFiles() {
 		fileChoose = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
 		fileChoose.setDialogTitle("Choose Directory");
 		fileChoose.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		int returnValue = fileChoose.showSaveDialog(null);
-		if (returnValue == JFileChooser.APPROVE_OPTION)
-		{
-			if (fileChoose.getSelectedFile().isDirectory())
-			{
+		if (returnValue == JFileChooser.APPROVE_OPTION) {
+			if (fileChoose.getSelectedFile().isDirectory()) {
 				fileToDownload = fileChoose.getSelectedFile() + File.separator + selectedFile;
 				resp = new DashboardController().downloadMyFiles(selectedFileId, username, selectedNodeName);
-				if (resp.getStatus().equalsIgnoreCase(ApplicationConstants.getFailure()))
-				{
+				if (resp.getStatus().equalsIgnoreCase(ApplicationConstants.getFailure())) {
 					JOptionPane.showMessageDialog(null, "SOMETHING WENT WRONG, FILE NOT DOWNLOADED");
-				}
-				else
-				{
+				} else {
 					InputStream is = resp.getInputStream();
-					try
-					{
-						while (is.available() != 0)
-						{
+					try {
+						while (is.available() != 0) {
 							int bytesRead;
 							byte[] buffer = new byte[2048];
 							FileOutputStream os = new FileOutputStream(fileToDownload);
-							while ((bytesRead = is.read(buffer)) != -1)
-							{
+							while ((bytesRead = is.read(buffer)) != -1) {
 								os.write(buffer, 0, bytesRead);
 							}
 							is.close();
 							os.close();
 						}
 						File downloaded = new File(fileToDownload);
-						if (downloaded != null && downloaded.exists() && downloaded.getTotalSpace() > 0)
-						{
+						if (downloaded != null && downloaded.exists() && downloaded.getTotalSpace() > 0) {
 							JOptionPane.showMessageDialog(null, "FILE '" + selectedFile + "' IS DOWNLOADED");
-<<<<<<< HEAD
 						} else {
 							JOptionPane.showMessageDialog(null, "FILE '" + selectedFile + "' IS NOT DOWNLOADED");
-=======
->>>>>>> 5c90bc27ff824d860bbbd0f77881d4ecec4df19c
 						}
-						else
-						{
-							JOptionPane.showMessageDialog(null, "FILE '" + selectedFile + "' IS NOT DOWNLOADED");
-						}
-					}
-					catch (IOException e1)
-					{
+					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
 				}
@@ -456,21 +372,16 @@ public class Dashboard
 		}
 	}
 
-	public void uploadFiles(File file)
-	{
+	public void uploadFiles(File file) {
 		resp = new DashboardController().uploadMyFiles(file, username);
-		if (resp.getStatus().equalsIgnoreCase(ApplicationConstants.getSuccess()))
-		{
+		if (resp.getStatus().equalsIgnoreCase(ApplicationConstants.getSuccess())) {
 			JOptionPane.showMessageDialog(null, " FILE '" + file.getName() + "' IS UPLOADED SUCCESSFULLY");
-		}
-		else
-		{
+		} else {
 			JOptionPane.showMessageDialog(null, "SOMETHING WENT WRONG");
 		}
 	}
 
-	public DefaultTreeModel getModel()
-	{
+	public DefaultTreeModel getModel() {
 		rootnode = new DefaultMutableTreeNode("Anchel");
 		mySpace = new DefaultMutableTreeNode("My Space");
 		myFiles = new DefaultMutableTreeNode("My Files");
@@ -485,20 +396,13 @@ public class Dashboard
 		foldertable = new JTable(foldermodel);
 
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-		tree.addTreeSelectionListener(new TreeSelectionListener()
-		{
-			public void valueChanged(TreeSelectionEvent e)
-			{
+		tree.addTreeSelectionListener(new TreeSelectionListener() {
+			public void valueChanged(TreeSelectionEvent e) {
 				JTree tree = (JTree) e.getSource();
 				selectedNode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
-<<<<<<< HEAD
 				if (selectedNode != null) {
 					model = new DefaultTableModel();
 					table = new JTable(model);
-=======
-				if (selectedNode.isLeaf())
-				{
->>>>>>> 5c90bc27ff824d860bbbd0f77881d4ecec4df19c
 					selectedNodeName = selectedNode.toString();
 					downloadbtn.setEnabled(false);
 					uploadbtn.setEnabled(false);
@@ -509,7 +413,6 @@ public class Dashboard
 					model.addColumn("Size");
 					model.addColumn("Last Modification");
 					model.addColumn("uuid");
-<<<<<<< HEAD
 
 					if (selectedNodeName.equalsIgnoreCase("My Files")) {
 						refreshbtn.setEnabled(true);
@@ -518,33 +421,10 @@ public class Dashboard
 						for (FileDetailsDTO dto : myFilelist) {
 							model.addRow(new Object[] { dto.getName(), dto.getType(), dto.getSize(),
 									dto.getModificationDate(), dto.getUuid() });
-=======
-					if (selectedNodeName.equalsIgnoreCase("My Files"))
-					{
-						refreshbtn.setEnabled(true);
-						for (FileDetailsDTO dto : myFilelist)
-						{
-							model.addRow(new Object[]
-							{
-								dto.getName(),
-								dto.getType(),
-								dto.getSize(),
-								dto.getModificationDate(),
-								dto.getUuid()
-							});
->>>>>>> 5c90bc27ff824d860bbbd0f77881d4ecec4df19c
 						}
 						scrollPane_2.setViewportView(table);
-<<<<<<< HEAD
 						table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 							public void valueChanged(ListSelectionEvent e) {
-=======
-						table.getSelectionModel().addListSelectionListener(new ListSelectionListener()
-						{
-							public void valueChanged(ListSelectionEvent e)
-							{
-								downloadbtn.setEnabled(true);
->>>>>>> 5c90bc27ff824d860bbbd0f77881d4ecec4df19c
 								deletebtn.setEnabled(true);
 								downloadbtn.setEnabled(true);
 								renamebtn.setEnabled(true);
@@ -553,7 +433,6 @@ public class Dashboard
 							}
 						});
 					}
-<<<<<<< HEAD
 
 					if (selectedNodeName.equalsIgnoreCase("Received Files")) {
 						refreshbtn.setEnabled(true);
@@ -561,28 +440,10 @@ public class Dashboard
 						for (FileDetailsDTO dto : myReceivedlist) {
 							model.addRow(new Object[] { dto.getName(), dto.getType(), dto.getSize(),
 									dto.getModificationDate(), dto.getUuid() });
-=======
-					if (selectedNodeName.equalsIgnoreCase("Received Files"))
-					{
-
-						refreshbtn.setEnabled(true);
-						for (FileDetailsDTO dto : myReceivedlist)
-						{
-							model.addRow(new Object[]
-							{
-								dto.getName(),
-								dto.getType(),
-								dto.getSize(),
-								dto.getModificationDate(),
-								dto.getUuid()
-							});
->>>>>>> 5c90bc27ff824d860bbbd0f77881d4ecec4df19c
 						}
 						scrollPane_2.setViewportView(table);
-						table.getSelectionModel().addListSelectionListener(new ListSelectionListener()
-						{
-							public void valueChanged(ListSelectionEvent e)
-							{
+						table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+							public void valueChanged(ListSelectionEvent e) {
 								downloadbtn.setEnabled(true);
 								deletebtn.setEnabled(true);
 								selectedFile = table.getValueAt(table.getSelectedRow(), 0).toString();
@@ -611,7 +472,6 @@ public class Dashboard
 		return treeModel;
 	}
 
-<<<<<<< HEAD
 	protected void displayFileDetails(DefaultMutableTreeNode selectedNode, JTable foldertable, JTable worktable) {
 		for (int i = 0; i < foldertable.getRowCount(); i++) {
 			String worktableFile = foldertable.getValueAt(i, 1).toString();
@@ -662,16 +522,6 @@ public class Dashboard
 		System.out.println("---------------RELOADED----------");
 		// model.setRowCount(0);
 		// model.setColumnCount(0);
-=======
-	public void reloadFiles()
-	{
-		myFilelist.clear();
-		myReceivedlist.clear();
-		getSharedFiles(username);
-		getMyFiles(username);
-		model = (DefaultTableModel) table.getModel();
-		model.setRowCount(0);
->>>>>>> 5c90bc27ff824d860bbbd0f77881d4ecec4df19c
 	}
 
 }
