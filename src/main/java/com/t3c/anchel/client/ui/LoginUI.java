@@ -91,7 +91,7 @@ public class LoginUI extends JFrame {
 
 		JLabel lblNewLabel = new JLabel("");
 		lblNewLabel.setIcon(
-				new ImageIcon(LoginUI.class.getResource("/com/t3c/anchel/client/utils/images/login/logo.png")));
+				new ImageIcon(LoginUI.class.getResource(ApplicationConstants.LOGIN_IMAGE1)));
 		lblNewLabel.setBounds(200, 11, 335, 145);
 		panel.add(lblNewLabel);
 

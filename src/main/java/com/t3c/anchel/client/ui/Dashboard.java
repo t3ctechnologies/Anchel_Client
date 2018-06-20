@@ -176,7 +176,7 @@ public class Dashboard {
 		});
 		uploadbtn.setToolTipText("Upload");
 		uploadbtn.setIcon(new ImageIcon(
-				Dashboard.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/uploads.png")));
+				Dashboard.class.getResource(ApplicationConstants.UPLOAD_IMG)));
 		toolBar_1.add(uploadbtn);
 
 		downloadbtn = new JButton("");
@@ -190,7 +190,7 @@ public class Dashboard {
 		});
 		downloadbtn.setToolTipText("Download");
 		downloadbtn.setIcon(new ImageIcon(
-				Dashboard.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/download.png")));
+				Dashboard.class.getResource(ApplicationConstants.DOWNLOAD_IMG)));
 		toolBar_1.add(downloadbtn);
 
 		deletebtn = new JButton("");
@@ -207,7 +207,7 @@ public class Dashboard {
 		});
 		deletebtn.setToolTipText("Delete");
 		deletebtn.setIcon(
-				new ImageIcon(Dashboard.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/delete.png")));
+				new ImageIcon(Dashboard.class.getResource(ApplicationConstants.DELETE_IMG)));
 		toolBar_1.add(deletebtn);
 
 		renamebtn = new JButton("");
@@ -221,7 +221,7 @@ public class Dashboard {
 		});
 		renamebtn.setToolTipText("Rename");
 		renamebtn.setIcon(
-				new ImageIcon(Dashboard.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/rename.png")));
+				new ImageIcon(Dashboard.class.getResource(ApplicationConstants.RENAME_IMG)));
 		toolBar_1.add(renamebtn);
 
 		toolBar_1.add(Box.createHorizontalGlue());
@@ -241,7 +241,7 @@ public class Dashboard {
 		});
 		logout.setToolTipText("Logout");
 		logout.setIcon(
-				new ImageIcon(Dashboard.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/logot.jpg")));
+				new ImageIcon(Dashboard.class.getResource(ApplicationConstants.LOGOUT_IMG)));
 		toolBar_1.add(logout);
 
 		scrollPane_2 = new JScrollPane();
@@ -264,7 +264,7 @@ public class Dashboard {
 		});
 		refreshbtn.setToolTipText("Refresh");
 		refreshbtn.setIcon(new ImageIcon(
-				Dashboard.class.getResource("/com/t3c/anchel/client/utils/images/dashboard/refresh.png")));
+				Dashboard.class.getResource(ApplicationConstants.REFRESH_IMG)));
 		toolBar.add(refreshbtn);
 		
 		
