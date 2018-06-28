@@ -18,6 +18,7 @@ public class ApplicationConstants
 	public static final String	WORK_GROUP		= "/linshare/webservice/rest/user/v2/work_groups";
 
 	// Images
+	public static final String	ICON_IMG	    = DEV_PROD + "/icon/favicon.png";
 	public static final String	LOGIN_IMAGE1	= DEV_PROD + "/login/logo.png";
 	public static final String	UPLOAD_IMG		= DEV_PROD + "/dashboard/uploads.png";
 	public static final String	DOWNLOAD_IMG	= DEV_PROD + "/dashboard/download.png";
