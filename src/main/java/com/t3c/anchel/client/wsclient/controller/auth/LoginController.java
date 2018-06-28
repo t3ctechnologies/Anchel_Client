@@ -22,7 +22,8 @@ public class LoginController
 		}
 		catch (Exception e)
 		{
-			OUT.error(e.getStackTrace());
+			// OUT.error();
+			e.printStackTrace();
 			response.setStatus(ApplicationConstants.getFailure());
 		}
 		return response;

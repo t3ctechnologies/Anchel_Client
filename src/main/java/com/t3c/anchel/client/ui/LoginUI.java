@@ -15,6 +15,8 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
+import org.apache.log4j.BasicConfigurator;
+
 import com.t3c.anchel.client.model.common.ResponseObject;
 import com.t3c.anchel.client.utils.consts.ApplicationConstants;
 import com.t3c.anchel.client.wsclient.controller.auth.LoginController;
@@ -32,6 +34,10 @@ public class LoginUI extends JFrame {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
+		
+		// Initialize the log4j
+		BasicConfigurator.configure();
+		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -95,7 +101,8 @@ public class LoginUI extends JFrame {
 		lblNewLabel.setBounds(200, 11, 335, 145);
 		panel.add(lblNewLabel);
 
-		String url[] = { "http://localhost:8080" };
+		// FIXME Anchel.io is not working demo purpose kept
+		String url[] = {"https://anchel.io", "http://localhost:8080"};
 		final JComboBox comboBox = new JComboBox(url);
 		comboBox.setBounds(10, 114, 160, 20);
 		panel.add(comboBox);
