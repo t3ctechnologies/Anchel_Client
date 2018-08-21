@@ -107,9 +107,7 @@ public class LoginUI extends JFrame {
 		lblNewLabel.setBounds(200, 11, 335, 145);
 		panel.add(lblNewLabel);
 
-		// FIXME Anchel.io is not working demo purpose kept
-		 // "https://anchel.io",
-		String url[] = {"http://localhost:8080" };
+		String url[] = {"https://user.anchel.io"};
 		final JComboBox comboBox = new JComboBox(url);
 		comboBox.setEditable(true);
 		comboBox.setBounds(10, 114, 160, 20);
@@ -131,8 +129,8 @@ public class LoginUI extends JFrame {
 		JButton btnOk = new JButton("OK");
 		btnOk.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				username = "root@anchel.io";
-				String password = "Welcome";
+				username = textField.getText();
+				String password = textField_1.getText();
 				String url = comboBox.getSelectedItem().toString();
 				if(url == null){
 					 url = comboBox.getItemAt(comboBox.getSelectedIndex()).toString();

@@ -24,6 +24,7 @@ import com.t3c.anchel.client.model.common.ResponseObject;
 import com.t3c.anchel.client.model.dashboard.FileDetailsDTO;
 import com.t3c.anchel.client.model.dashboard.JTableDto;
 import com.t3c.anchel.client.model.dashboard.SharedDetailsDto;
+import com.t3c.anchel.client.utils.consts.ApplicationConstants;
 import com.t3c.anchel.client.wsclient.controller.dashboard.DashboardController;
 import com.t3c.anchel.client.wsclient.controller.dashboard.ShareFileController;
 
@@ -46,6 +47,8 @@ public class FileInformation {
 
 	public void initialize(DefaultMutableTreeNode selectedNode) {
 		frame = new JDialog(frame, "FILE INFO", true);
+		frame.setIconImage(
+				Toolkit.getDefaultToolkit().getImage(FileInformation.class.getResource(ApplicationConstants.ICON_IMG)));
 		frame.setResizable(false);
 		JTabbedPane tp = new JTabbedPane();
 		tp.setBounds(10, 29, 410, 287);

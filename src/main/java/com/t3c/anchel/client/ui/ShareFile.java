@@ -48,13 +48,23 @@ public class ShareFile {
 	private ShareCreationDto shareDto = null;
 	private List<Object> objects = new ArrayList<Object>();
 	private JTextField textField;
+	private Boolean anonymous_url;
+	private Boolean share_expiration;
+	private String share_value;
+	private String share_unit;
+	private Boolean shareAcknowledgement;
 
 	public ShareFile(String username, List<LdapUsersDto> emailList, List<String> selectedFileId, Boolean anonymous_url,
 			Boolean share_expiration, String share_value, String share_unit, Boolean shareAcknowledgement) {
 		this.username = username;
 		this.emailList = emailList;
+		this.anonymous_url = anonymous_url;
+		this.share_expiration = share_expiration;
+		this.share_value = share_value;
+		this.share_unit = share_unit;
+		this.shareAcknowledgement = shareAcknowledgement;
 		response = new ResponseObject();
-		initialize(selectedFileId, anonymous_url, share_expiration, share_value, share_unit, shareAcknowledgement);
+		initialize(selectedFileId);
 	}
 
 	private RecipientsDto getRecipientDetailsBymail(List<LdapUsersDto> emailList2, String mail) {
@@ -70,11 +80,10 @@ public class ShareFile {
 		return dto;
 	}
 
-	public void initialize(final List<String> selectedFileId, Boolean anonymous_url, Boolean share_expiration,
-			String share_value, String share_unit, Boolean shareAcknowledgement) {
+	public void initialize(final List<String> selectedFileId) {
 		shareFrame = new JDialog(shareFrame, "QUICK SHARE", true);
 		shareFrame.setIconImage(
-				Toolkit.getDefaultToolkit().getImage(Dashboard.class.getResource(ApplicationConstants.ICON_IMG)));
+				Toolkit.getDefaultToolkit().getImage(ShareFile.class.getResource(ApplicationConstants.ICON_IMG)));
 		shareFrame.setResizable(false);
 
 		JPanel panel = new JPanel();
@@ -183,7 +192,7 @@ public class ShareFile {
 
 		chckbxShare = new JCheckBox("Sharing Acknowledgement", true);
 		chckbxShare.setBounds(75, 321, 215, 23);
-		if(shareAcknowledgement == true){
+		if (shareAcknowledgement == true) {
 			panel.add(chckbxShare);
 		}
 
@@ -219,7 +228,7 @@ public class ShareFile {
 		notichooser = new JDateChooser();
 		Date notidate = DateUtils.addDays(new Date(), 3);
 		notichooser.setDate(notidate);
-		
+
 		expchooser = new JDateChooser();
 		Date expdate = null;
 		if (share_expiration == true) {
@@ -231,8 +240,7 @@ public class ShareFile {
 			} else if (share_unit.equals("MONTH")) {
 				expdate = DateUtils.addMonths(new Date(), num);
 			}
-		}
-		else {
+		} else {
 			expdate = DateUtils.addDays(new Date(), -1);
 		}
 		expchooser.setSize(112, 23);
