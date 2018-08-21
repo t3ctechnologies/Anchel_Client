@@ -6,7 +6,10 @@ import java.io.IOException;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.t3c.anchel.client.model.common.ResponseObject;
+import com.t3c.anchel.client.model.dashboard.JTableDto;
 import com.t3c.anchel.client.utils.consts.ApplicationConstants;
 import com.t3c.anchel.client.wsclient.services.dashboard.DashboardService;
 
@@ -42,11 +45,11 @@ public class DashboardController {
 		return response;
 	}
 
-	public ResponseObject deleteMyFiles(String uuid, String username, String selectedNodeName) {
+	public ResponseObject deleteMyFiles(String groupuuid, String uuid, String username, String selectedNodeName) {
 		OUT.info("Deleting myfiles file with a uuid: " + uuid + " is started.");
 		try {
 			response = new ResponseObject();
-			response.setResponseObject(new DashboardService().deleteMyFiles(uuid, username, selectedNodeName));
+			new DashboardService().deleteMyFiles(groupuuid, uuid, username, selectedNodeName);
 			response.setStatus(ApplicationConstants.getSuccess());
 		} catch (Exception e) {
 			OUT.error(e.getStackTrace());
@@ -56,11 +59,11 @@ public class DashboardController {
 		return response;
 	}
 
-	public ResponseObject downloadMyFiles(String uuid, String username, String selectedNodeName) {
+	public ResponseObject downloadMyFiles(String groupid, String uuid, String username, String selectedNodeName) {
 		OUT.info("Downloading myfiles file with a uuid: " + uuid + " is started.");
 		response = new ResponseObject();
 		try {
-			response = new DashboardService().downloadMyFiles(uuid, username, selectedNodeName);
+			response = new DashboardService().downloadMyFiles(groupid, uuid, username, selectedNodeName);
 		} catch (IOException e) {
 			response.setStatus(ApplicationConstants.getFailure());
 			e.printStackTrace();
@@ -69,11 +72,11 @@ public class DashboardController {
 		return response;
 	}
 
-	public ResponseObject renameMyFiles(String uuid, String username, String renameString) {
+	public ResponseObject renameMyFiles(String groupid, String uuid, String username, String renameString) {
 		OUT.info("Renaming myfiles file with a uuid: " + uuid + " is started.");
 		response = new ResponseObject();
 		try {
-			response = new DashboardService().renameMyFiles(uuid, username, renameString);
+			response = new DashboardService().renameMyFiles(groupid, uuid, username, renameString);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -88,59 +91,18 @@ public class DashboardController {
 		OUT.info("RESP: Uploading files to myfiles with file name: " + file + " is completed.");
 		return response;
 	}
-
-	public ResponseObject getWorkgroups(String username) {
-		OUT.info("Getting WorkGroup Details for a user: " + username + " is started.");
-		response = new ResponseObject();
+	
+	public ResponseObject getFileActivity(JTableDto tableDto, String username) {
+		OUT.info("Getting files activity for user: " + username + " started.");
 		try {
-			response.setResponseObject(new DashboardService().getWorkgroups(username));
+			response = new ResponseObject();
+			response.setResponseObject(new DashboardService().getFileActivity(tableDto, username));
 			response.setStatus(ApplicationConstants.getSuccess());
 		} catch (Exception e) {
 			OUT.error(e.getStackTrace());
 			response.setStatus(ApplicationConstants.getFailure());
 		}
-		OUT.info("RESP: Getting WorkGroup Details for a user: " + username + " is completed.");
+		OUT.info("RESP:Getting file activity is completed.");
 		return response;
 	}
-
-	public ResponseObject getWorkgroupFolders(String workGroupUuid, String username) {
-		OUT.info("Getting WorkGroup Folder Details for a user: " + username + " is started.");
-		response = new ResponseObject();
-		try {
-			response.setResponseObject(new DashboardService().getWorkgroupFolders(workGroupUuid, username));
-			response.setStatus(ApplicationConstants.getSuccess());
-		} catch (Exception e) {
-			OUT.error(e.getStackTrace());
-			response.setStatus(ApplicationConstants.getFailure());
-		}
-		OUT.info("RESP: Getting WorkGroup Folder Details for a user: " + username + " is completed.");
-		return response;
-	}
-
-	public ResponseObject getWorkgroupFiles(String workGroupUuid, String folderUuid, String username) {
-		OUT.info("Getting WorkGroup File Details for a user: " + username + " is started.");
-		response = new ResponseObject();
-		try {
-			response.setResponseObject(new DashboardService().getWorkgroupFiles(workGroupUuid, folderUuid, username));
-			response.setStatus(ApplicationConstants.getSuccess());
-		} catch (Exception e) {
-			OUT.error(e.getStackTrace());
-			response.setStatus(ApplicationConstants.getFailure());
-		}
-		OUT.info("RESP: Getting WorkGroup File Details for a user: " + username + " is completed.");
-		return response;
-	}
-
-	public ResponseObject createWorkgroup(String workgroupName, String username) {
-		OUT.info("Creating workgroup with a name: " + workgroupName + " is started.");
-		response = new ResponseObject();
-		try {
-			response = new DashboardService().createWorkgroup(workgroupName, username);
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
-		OUT.info("RESP:Creation of workgroup is completed.");
-		return response;
-	}
-
 }

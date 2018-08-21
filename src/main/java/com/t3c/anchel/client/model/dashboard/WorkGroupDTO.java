@@ -30,9 +30,17 @@ public class WorkGroupDTO implements IModel {
 	private Long size;
 	protected String mimeType;
 	protected String sha256sum;
-	private boolean hasThumbnail;
+	private Boolean hasThumbnail;
 	private Date uploadDate;
-	
+	@Override
+	public String toString() {
+		return "WorkGroupDTO [name=" + name + ", uuid=" + uuid + ", creationDate=" + creationDate
+				+ ", modificationDate=" + modificationDate + ", locale=" + locale + ", externalMailLocale="
+				+ externalMailLocale + ", domain=" + domain + ", type=" + type + ", parent=" + parent + ", workGroup="
+				+ workGroup + ", description=" + description + ", metaData=" + metaData + ", lastAuthor=" + lastAuthor
+				+ ", size=" + size + ", mimeType=" + mimeType + ", sha256sum=" + sha256sum + ", hasThumbnail="
+				+ hasThumbnail + ", uploadDate=" + uploadDate + "]";
+	}
 	public String getName() {
 		return name;
 	}
@@ -129,10 +137,10 @@ public class WorkGroupDTO implements IModel {
 	public void setSha256sum(String sha256sum) {
 		this.sha256sum = sha256sum;
 	}
-	public boolean isHasThumbnail() {
+	public Boolean getHasThumbnail() {
 		return hasThumbnail;
 	}
-	public void setHasThumbnail(boolean hasThumbnail) {
+	public void setHasThumbnail(Boolean hasThumbnail) {
 		this.hasThumbnail = hasThumbnail;
 	}
 	public Date getUploadDate() {
@@ -140,14 +148,5 @@ public class WorkGroupDTO implements IModel {
 	}
 	public void setUploadDate(Date uploadDate) {
 		this.uploadDate = uploadDate;
-	}
-	@Override
-	public String toString() {
-		return "WorkGroupDTO [name=" + name + ", uuid=" + uuid + ", creationDate=" + creationDate
-				+ ", modificationDate=" + modificationDate + ", locale=" + locale + ", externalMailLocale="
-				+ externalMailLocale + ", domain=" + domain + ", type=" + type + ", parent=" + parent + ", workGroup="
-				+ workGroup + ", description=" + description + ", metaData=" + metaData + ", lastAuthor=" + lastAuthor
-				+ ", size=" + size + ", mimeType=" + mimeType + ", sha256sum=" + sha256sum + ", hasThumbnail="
-				+ hasThumbnail + ", uploadDate=" + uploadDate + "]";
 	}
 }

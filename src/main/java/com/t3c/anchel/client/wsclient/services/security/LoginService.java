@@ -1,5 +1,6 @@
 package com.t3c.anchel.client.wsclient.services.security;
 
+import java.io.IOException;
 import java.util.Base64;
 import java.util.Iterator;
 
@@ -17,7 +18,7 @@ public class LoginService
 {
 	final static Logger OUT = Logger.getLogger(LoginService.class);
 
-	public Object authenticate(String username, String password, String url)
+	public Object authenticate(String username, String password, String url) throws IOException
 	{
 		OUT.debug("Authencation using username :" + username + " URL :" + url);
 		StringBuilder urlBuffer = new StringBuilder();
@@ -32,6 +33,7 @@ public class LoginService
 		if (resp.getStatus() != 200)
 		{
 			OUT.error("Unable to connect to the server");
+			throw new IOException();
 		}
 		String sessionDetails = getSessionDetails(resp.getHeaders());
 		if (sessionDetails == null)

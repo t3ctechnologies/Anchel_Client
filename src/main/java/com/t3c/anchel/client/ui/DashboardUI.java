@@ -300,7 +300,7 @@ public class DashboardUI {
 				String renameString = JOptionPane.showInputDialog("New Filename", selectedFile);
 				if (!renameString.equals("")) {
 					ResponseObject resp = null;
-					resp = new DashboardController().renameMyFiles(uuid, username, renameString);
+					//resp = new DashboardController().renameMyFiles(uuid, username, renameString);
 					if (resp.getStatus().equalsIgnoreCase(ApplicationConstants.getSuccess())) {
 						JOptionPane.showMessageDialog(null, "FILENAME CHANGED TO '" + renameString + "'");
 					} else {
