@@ -27,14 +27,12 @@ public class ApplicationConstants {
 	public static final String DOWNLOAD_IMG = DEV_PROD + "/dashboard/download.png";
 	public static final String DELETE_IMG = DEV_PROD + "/dashboard/delete.png";
 	public static final String RENAME_IMG = DEV_PROD + "/dashboard/rename.png";
-	public static final String LOGOUT_IMG = DEV_PROD + "/dashboard/logot.jpg"; // FIXME
-																				// change
-																				// logot.jpg
-																				// to
-																				// logout.png
+	public static final String LOGOUT_IMG = DEV_PROD + "/dashboard/logot.jpg"; 
 	public static final String REFRESH_IMG = DEV_PROD + "/dashboard/refresh.png";
 	public static final String ADD_IMG = DEV_PROD + "/dashboard/add.png";
 	public static final String LOGO1_IMG = DEV_PROD + "/about/icon-01.png";
+	public static final String INFO_IMG = DEV_PROD + "/dashboard/info.png";
+	public static final String SHARE_IMG = DEV_PROD + "/dashboard/share.png";
 
 	public static String getSuccess() {
 		return SUCCESS;

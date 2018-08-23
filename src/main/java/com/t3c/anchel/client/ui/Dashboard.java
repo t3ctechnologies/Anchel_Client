@@ -87,7 +87,7 @@ public class Dashboard {
 	private Boolean share_expiration;
 	private String share_value;
 	private String share_unit;
-	
+
 	public Dashboard(String username) {
 		this.username = username;
 		resp = new FunctionalityController().findAll(username);
@@ -180,43 +180,115 @@ public class Dashboard {
 		JMenu mnFile = new JMenu("File");
 		menuBar.add(mnFile);
 
-		JMenuItem open = new JMenuItem("Open");
-		mnFile.add(open);
-
 		JMenuItem upload = new JMenuItem("Upload");
 		mnFile.add(upload);
+		upload.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					String name = selectedNodeName;
+					if (name.equals("Anchel") || name.equals("My Space") || name.equals("Received Files")
+							|| name.equals("Shared Space")) {
+						JOptionPane.showMessageDialog(anchelFrame,
+								"PLEASE SELECT MYFILE or WORKGROUP/FOLDER TO UPLOAD");
+					} else {
+						uploadFiles();
+					}
+				} catch (NullPointerException e1) {
+					JOptionPane.showMessageDialog(anchelFrame, "PLEASE SELECT MYFILE or WORKGROUP/FOLDER TO UPLOAD");
+				}
+			}
+		});
 
 		JMenuItem download = new JMenuItem("Download");
 		mnFile.add(download);
+		download.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					selectedFileId.get(0);
+					downloadFiles();
+				} catch (NullPointerException e1) {
+					JOptionPane.showMessageDialog(anchelFrame, "PLEASE SELECT FILE TO DOWNLOAD");
+				}
+			}
+		});
 
 		JMenuItem exit = new JMenuItem("Exit");
 		mnFile.add(exit);
+		exit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int dialogResult = JOptionPane.showConfirmDialog(null,
+						"Are you sure you want to disconnect the current connection?", "Warning",
+						JOptionPane.WARNING_MESSAGE);
+				if (dialogResult == JOptionPane.YES_OPTION) {
+					UserSessionCache.getInstance().doDelete(username);
+					anchelFrame.dispose();
+					new LoginUI();
+				}
+			}
+		});
 
 		JMenu mnEdit = new JMenu("Edit");
 		menuBar.add(mnEdit);
 
 		JMenuItem rename = new JMenuItem("Rename");
 		mnEdit.add(rename);
+		rename.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					selectedFile.get(0);
+					renameFiles();
+				} catch (NullPointerException e1) {
+					JOptionPane.showMessageDialog(anchelFrame, "PLEASE SELECT FILE TO RENMAE");
+				}
+			}
+		});
 
 		JMenuItem delete = new JMenuItem("Delete");
 		mnEdit.add(delete);
+		delete.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					selectedFileId.get(0);
+					deleteFiles();
+				} catch (NullPointerException e1) {
+					JOptionPane.showMessageDialog(anchelFrame, "PLEASE SELECT FILE TO DELETE");
+				}
+			}
+		});
 
 		JMenu mnView = new JMenu("View");
 		menuBar.add(mnView);
 
 		JMenuItem refresh = new JMenuItem("Refresh");
 		mnView.add(refresh);
+		refresh.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					DefaultMutableTreeNode treeNode = selectedNode;
+					reloadNodes(treeNode);
+					JOptionPane.showMessageDialog(anchelFrame, "RELOADED");
+				} catch (NullPointerException e1) {
+					JOptionPane.showMessageDialog(anchelFrame, "PLEASE SELECT TREENODE TO REFRESH");
+				}
+			}
+		});
 
 		JMenu mnHelp = new JMenu("Help");
 		menuBar.add(mnHelp);
 
-		JMenuItem version = new JMenuItem("Content");
-		mnHelp.add(version);
+		// JMenuItem version = new JMenuItem("Content");
+		// mnHelp.add(version);
 
 		JMenuItem about = new JMenuItem("About");
 		mnHelp.add(about);
+		about.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				new AboutUI();
+			}
+		});
 
 		JSplitPane splitPane = new JSplitPane();
+		splitPane.setResizeWeight(0.15);
 		anchelFrame.getContentPane().add(splitPane, BorderLayout.CENTER);
 
 		JSplitPane splitPane_1 = new JSplitPane();
@@ -229,15 +301,7 @@ public class Dashboard {
 		uploadbtn = new JButton("");
 		uploadbtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (e.getSource() == uploadbtn) {
-					fileChoose = new JFileChooser();
-					fileChoose.setMultiSelectionEnabled(true);
-					int returnVal = fileChoose.showOpenDialog(anchelFrame);
-					if (returnVal == JFileChooser.APPROVE_OPTION) {
-						File[] file = fileChoose.getSelectedFiles();
-						uploadFiles(file);
-					}
-				}
+				uploadFiles();
 			}
 		});
 		uploadbtn.setToolTipText("Upload");
@@ -313,7 +377,7 @@ public class Dashboard {
 		refreshbtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				reloadNodes(selectedNode);
-				JOptionPane.showMessageDialog(anchelFrame, "Reloaded");
+				JOptionPane.showMessageDialog(anchelFrame, "RELOADED");
 			}
 		});
 		refreshbtn.setToolTipText("Refresh");
@@ -339,6 +403,10 @@ public class Dashboard {
 		refreshbtn.setEnabled(false);
 	}
 
+	/**
+	 * This method is used to get selected node info when right click operation
+	 * is performed.
+	 */
 	private MouseListener getMouseListener() {
 		return new MouseAdapter() {
 			@Override
@@ -357,12 +425,20 @@ public class Dashboard {
 		};
 	}
 
+	/**
+	 * This method is used to get pop up windows.
+	 */
 	private JPopupMenu getPopUpMenu() {
 		popupMenu = new JPopupMenu();
-		JMenuItem createItem = new JMenuItem("Create");
+		JMenuItem createItem = new JMenuItem("Create",
+				new ImageIcon(Dashboard.class.getResource(ApplicationConstants.ADD_IMG)));
 		createItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (selectedNode.toString().equals("Shared Space")) {
+				String nodeName = selectedNode.toString();
+				if (nodeName.equals("Anchel") || nodeName.equals("My Space") || nodeName.equals("Received Files")
+						|| nodeName.equals("My Files")) {
+					JOptionPane.showMessageDialog(anchelFrame, "PLEASE SELECT PROPER NODE...!!");
+				} else if (nodeName.equals("Shared Space")) {
 					createWorkgroup();
 				} else {
 					createFolder();
@@ -370,17 +446,31 @@ public class Dashboard {
 			}
 		});
 
-		JMenuItem renameItem = new JMenuItem("Rename");
+		JMenuItem renameItem = new JMenuItem("Rename",
+				new ImageIcon(Dashboard.class.getResource(ApplicationConstants.RENAME_IMG)));
 		renameItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				renameNode();
+				String nodeName = selectedNode.toString();
+				if (nodeName.equals("Anchel") || nodeName.equals("My Space") || nodeName.equals("Received Files")
+						|| nodeName.equals("My Files") || nodeName.equals("Shared Space")) {
+					JOptionPane.showMessageDialog(anchelFrame, "PLEASE SELECT PROPER NODE...!!");
+				} else {
+					renameNode();
+				}
 			}
 		});
 
-		JMenuItem deleteItem = new JMenuItem("Delete");
+		JMenuItem deleteItem = new JMenuItem("Delete",
+				new ImageIcon(Dashboard.class.getResource(ApplicationConstants.DELETE_IMG)));
 		deleteItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				deleteNode();
+				String nodeName = selectedNode.toString();
+				if (nodeName.equals("Anchel") || nodeName.equals("My Space") || nodeName.equals("Received Files")
+						|| nodeName.equals("My Files") || nodeName.equals("Shared Space")) {
+					JOptionPane.showMessageDialog(anchelFrame, "PLEASE SELECT PROPER NODE...!!");
+				} else {
+					deleteNode();
+				}
 			}
 		});
 
@@ -391,21 +481,32 @@ public class Dashboard {
 		return popupMenu;
 	}
 
+	/**
+	 * This method is used to perform renaming of tree node.
+	 */
 	public void renameNode() {
-		String renameString = JOptionPane.showInputDialog("New Filename", selectedNode.toString());
-		if (renameString != null && !(renameString.equals(""))) {
-			resp = new WorkgroupController().renameNode(workGroupUuid, folderUuid, renameString, username);
-			if (resp.getStatus().equalsIgnoreCase(ApplicationConstants.getSuccess())) {
-				JOptionPane.showMessageDialog(anchelFrame, "NODE CHANGED TO '" + renameString + "'");
-				displayGroupsInfo();
-				workgroupActivity();
-				reloadNodes(selectedNode);
+		try {
+			String renameString = JOptionPane.showInputDialog("New Filename", selectedNode.toString());
+			if (!(renameString.equals(""))) {
+				resp = new WorkgroupController().renameNode(workGroupUuid, folderUuid, renameString, username);
+				if (resp.getStatus().equalsIgnoreCase(ApplicationConstants.getSuccess())) {
+					JOptionPane.showMessageDialog(anchelFrame, "NODE CHANGED TO '" + renameString + "'");
+					displayGroupsInfo();
+					workgroupActivity();
+					reloadNodes(selectedNode);
+				} else {
+					JOptionPane.showMessageDialog(anchelFrame, "SOMETHING WENT WRONG");
+				}
 			} else {
-				JOptionPane.showMessageDialog(anchelFrame, "SOMETHING WENT WRONG");
+				JOptionPane.showMessageDialog(anchelFrame, "NAME SHOULD NOT BE EMPTY");
 			}
+		} catch (NullPointerException e) {
 		}
 	}
 
+	/**
+	 * This method is used to perform deleting of tree node.
+	 */
 	public void deleteNode() {
 		int dialogResult = JOptionPane.showConfirmDialog(anchelFrame, "Are you sure, you want to delete?", "Warning",
 				JOptionPane.WARNING_MESSAGE);
@@ -422,57 +523,72 @@ public class Dashboard {
 		}
 	}
 
+	/**
+	 * This method is used to perform creating of tree node.
+	 */
 	public void createFolder() {
-		String folderName = JOptionPane.showInputDialog(anchelFrame, "ENTER FOLDERNAME");
-		if (folderName != null && !(folderName.equals(""))) {
-			if (workGroupFoldersList.size() > 0) {
-				WorkGroupDTO dto = workGroupFoldersList.get(0);
-				resp = new WorkgroupController().createFolder(folderName, dto.getWorkGroup(), dto.getParent(),
-						username);
-			} else if (sharedspace.isNodeChild(selectedNode)) {
-				resp = new WorkgroupController().getParentID(workGroupUuid, username);
-				WorkGroupDTO dto = (WorkGroupDTO) resp.getResponseObject();
-				resp = new WorkgroupController().createFolder(folderName, workGroupUuid, dto.getParent(), username);
-			} else {
-				resp = new WorkgroupController().createFolder(folderName, workGroupUuid, folderUuid, username);
-			}
-			if (resp.getStatus().equalsIgnoreCase(ApplicationConstants.getSuccess())) {
-				JOptionPane.showMessageDialog(null, "FOLDER CREATED: '" + folderName + "'");
-				displayGroupsInfo();
-				workgroupActivity();
-				reloadNodes(selectedNode);
-			} else {
-				JOptionPane.showMessageDialog(null, "SOMETHING WENT WRONG");
-			}
-		} else if (folderName == null || folderName.equals("")) {
-			JOptionPane.showMessageDialog(anchelFrame, "FOLDERNAME SHOULD NOT BE EMPTY");
-		}
-	}
-
-	public void renameFiles() {
-		String renameString = JOptionPane.showInputDialog("New Filename", selectedFile.get(0));
-		if (renameString != null && !(renameString.equals(""))) {
-			if (selectedNodeName.equals("My Files")) {
-				resp = new DashboardController().renameMyFiles(null, selectedFileId.get(0), username, renameString);
-			} else {
-				resp = new DashboardController().renameMyFiles(workgroupUuid.get(0), selectedFileId.get(0), username,
-						renameString);
-			}
-			if (resp.getStatus().equalsIgnoreCase(ApplicationConstants.getSuccess())) {
-				JOptionPane.showMessageDialog(null, "FILENAME CHANGED TO '" + renameString + "'");
-				if (selectedNodeName.equals("My Files")) {
-					myFilesActivity();
+		try {
+			String folderName = JOptionPane.showInputDialog(anchelFrame, "ENTER FOLDERNAME");
+			if (!(folderName.equals(""))) {
+				if (workGroupFoldersList.size() > 0) {
+					WorkGroupDTO dto = workGroupFoldersList.get(0);
+					resp = new WorkgroupController().createFolder(folderName, dto.getWorkGroup(), dto.getParent(),
+							username);
+				} else if (sharedspace.isNodeChild(selectedNode)) {
+					resp = new WorkgroupController().getParentID(workGroupUuid, username);
+					WorkGroupDTO dto = (WorkGroupDTO) resp.getResponseObject();
+					resp = new WorkgroupController().createFolder(folderName, workGroupUuid, dto.getParent(), username);
 				} else {
+					resp = new WorkgroupController().createFolder(folderName, workGroupUuid, folderUuid, username);
+				}
+				if (resp.getStatus().equalsIgnoreCase(ApplicationConstants.getSuccess())) {
+					JOptionPane.showMessageDialog(null, "FOLDER CREATED : '" + folderName + "'");
+					displayGroupsInfo();
 					workgroupActivity();
+					reloadNodes(selectedNode);
+				} else {
+					JOptionPane.showMessageDialog(null, "SOMETHING WENT WRONG");
 				}
 			} else {
-				JOptionPane.showMessageDialog(null, "SOMETHING WENT WRONG");
+				JOptionPane.showMessageDialog(anchelFrame, "FOLDER NAME SHOULD NOT BE EMPTY");
 			}
-		} else {
-			JOptionPane.showMessageDialog(null, "FILENAME SHOULD NOT BE EMPTY");
+		} catch (Exception e) {
 		}
 	}
 
+	/**
+	 * This method is used to perform renaming of files.
+	 */
+	public void renameFiles() {
+		try {
+			String renameString = JOptionPane.showInputDialog("New Filename", selectedFile.get(0));
+			if (!(renameString.equals(""))) {
+				if (selectedNodeName.equals("My Files")) {
+					resp = new DashboardController().renameMyFiles(null, selectedFileId.get(0), username, renameString);
+				} else {
+					resp = new DashboardController().renameMyFiles(workgroupUuid.get(0), selectedFileId.get(0),
+							username, renameString);
+				}
+				if (resp.getStatus().equalsIgnoreCase(ApplicationConstants.getSuccess())) {
+					JOptionPane.showMessageDialog(null, "FILE RENAMED TO : '" + renameString + "'");
+					if (selectedNodeName.equals("My Files")) {
+						myFilesActivity();
+					} else {
+						workgroupActivity();
+					}
+				} else {
+					JOptionPane.showMessageDialog(null, "SOMETHING WENT WRONG");
+				}
+			} else {
+				JOptionPane.showMessageDialog(null, "FILENAME SHOULD NOT BE EMPTY");
+			}
+		} catch (NullPointerException e) {
+		}
+	}
+
+	/**
+	 * This method is used to perform deleting of files.
+	 */
 	public void deleteFiles() {
 		int dialogResult = JOptionPane.showConfirmDialog(anchelFrame, "Are you sure you want to delete selected file?",
 				"Warning", JOptionPane.WARNING_MESSAGE);
@@ -500,6 +616,9 @@ public class Dashboard {
 		}
 	}
 
+	/**
+	 * This method is used to perform downloading of files.
+	 */
 	public void downloadFiles() {
 		SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 			@Override
@@ -555,62 +674,80 @@ public class Dashboard {
 		worker.execute();
 	}
 
+	/**
+	 * This method is used to perform creating of workgroup.
+	 */
 	public void createWorkgroup() {
-		String workgroupName = JOptionPane.showInputDialog(anchelFrame, "Enter WorkgroupName");
-		if (workgroupName != null && !(workgroupName.equals("")) && workgroupCreationRight == true) {
-			ResponseObject resp = null;
-			resp = new WorkgroupController().createWorkgroup(workgroupName, username);
-			if (resp.getStatus().equalsIgnoreCase(ApplicationConstants.getSuccess())) {
-				JOptionPane.showMessageDialog(null, "WORKGROUP CREATED: '" + workgroupName + "'");
-				displayGroupsInfo();
-				reloadNodes(selectedNode);
+		try {
+			String workgroupName = JOptionPane.showInputDialog(anchelFrame, "ENTER WORKGROUP NAME");
+			if (!(workgroupName.equals("")) && workgroupCreationRight == true) {
+				ResponseObject resp = null;
+				resp = new WorkgroupController().createWorkgroup(workgroupName, username);
+				if (resp.getStatus().equalsIgnoreCase(ApplicationConstants.getSuccess())) {
+					JOptionPane.showMessageDialog(null, "WORKGROUP CREATED : '" + workgroupName + "'");
+					displayGroupsInfo();
+					reloadNodes(selectedNode);
+				} else {
+					JOptionPane.showMessageDialog(null, "SOMETHING WENT WRONG");
+				}
+			} else if (workgroupCreationRight == false) {
+				JOptionPane.showMessageDialog(anchelFrame, "YOU DON'T HAVE PERMISSION TO CREATE WORKGROUP");
 			} else {
-				JOptionPane.showMessageDialog(null, "SOMETHING WENT WRONG");
+				JOptionPane.showMessageDialog(null, "WORKGROUP NAME SHOULD NOT BE EMPTY");
 			}
-		} else if (workgroupCreationRight == false) {
-			JOptionPane.showMessageDialog(anchelFrame, "YOU DON'T HAVE PERMISSION TO CREATE WORKGROUP");
-		} else {
-			JOptionPane.showMessageDialog(null, "WORKGROUPNAME SHOULD NOT BE EMPTY");
+		} catch (NullPointerException e) {
 		}
 	}
 
-	public void uploadFiles(final File[] file) {
-		SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-			@Override
-			protected Void doInBackground() throws Exception {
-				for (int k = 0; k < file.length; k++) {
-					progressBar.setVisible(true);
-					progressBar.setIndeterminate(true);
-					if (selectedNodeName.equals("My Files")) {
-						resp = new DashboardController().uploadMyFiles(file[k], username);
-					} else if (sharedspace.isNodeChild(selectedNode)) {
-						resp = new WorkgroupController().uploadFiles(file[k], username, workGroupUuid, null);
-					} else {
-						resp = new WorkgroupController().uploadFiles(file[k], username, workGroupUuid, folderUuid);
-					}
-					if (resp.getStatus().equalsIgnoreCase(ApplicationConstants.getSuccess())) {
-						JOptionPane.showMessageDialog(null,
-								" FILE '" + file[k].getName().toUpperCase() + "' IS UPLOADED SUCCESSFULLY");
-						progressBar.setVisible(false);
-						progressBar.setIndeterminate(false);
+	/**
+	 * This method is used to perform uploading of files.
+	 */
+	public void uploadFiles() {
+		fileChoose = new JFileChooser();
+		fileChoose.setMultiSelectionEnabled(true);
+		int returnVal = fileChoose.showOpenDialog(anchelFrame);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			final File[] file = fileChoose.getSelectedFiles();
+			SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+				@Override
+				protected Void doInBackground() throws Exception {
+					for (int k = 0; k < file.length; k++) {
+						progressBar.setVisible(true);
+						progressBar.setIndeterminate(true);
 						if (selectedNodeName.equals("My Files")) {
-							myFilesActivity();
+							resp = new DashboardController().uploadMyFiles(file[k], username);
+						} else if (sharedspace.isNodeChild(selectedNode)) {
+							resp = new WorkgroupController().uploadFiles(file[k], username, workGroupUuid, null);
 						} else {
-							workgroupActivity();
+							resp = new WorkgroupController().uploadFiles(file[k], username, workGroupUuid, folderUuid);
 						}
-					} else {
-						progressBar.setVisible(false);
-						progressBar.setIndeterminate(false);
-						JOptionPane.showMessageDialog(null, "SOMETHING WENT WRONG");
+						if (resp.getStatus().equalsIgnoreCase(ApplicationConstants.getSuccess())) {
+							JOptionPane.showMessageDialog(null,
+									" FILE '" + file[k].getName().toUpperCase() + "' IS UPLOADED SUCCESSFULLY");
+							progressBar.setVisible(false);
+							progressBar.setIndeterminate(false);
+							if (selectedNodeName.equals("My Files")) {
+								myFilesActivity();
+							} else {
+								workgroupActivity();
+							}
+						} else {
+							progressBar.setVisible(false);
+							progressBar.setIndeterminate(false);
+							JOptionPane.showMessageDialog(null, "SOMETHING WENT WRONG");
+						}
 					}
+					return null;
 				}
-				return null;
-			}
 
-		};
-		worker.execute();
+			};
+			worker.execute();
+		}
 	}
 
+	/**
+	 * This method is used to get tree model.
+	 */
 	public DefaultTreeModel getModel() {
 		rootnode = new DefaultMutableTreeNode("Anchel");
 		mySpace = new DefaultMutableTreeNode("My Space");
@@ -619,6 +756,8 @@ public class Dashboard {
 		mySpace.add(myFiles);
 		mySpace.add(receiveFiles);
 		rootnode.add(mySpace);
+		// TreePath path = new TreePath(receiveFiles.getPath());
+		// tree.expandPath(path);
 		if (workgroupFunctionality == true) {
 			sharedspace = new DefaultMutableTreeNode("Shared Space");
 			rootnode.add(sharedspace);
@@ -697,6 +836,9 @@ public class Dashboard {
 		return treeModel;
 	}
 
+	/**
+	 * This method is used for displaying workgroup informations.
+	 */
 	public void displayGroupsInfo() {
 		refreshbtn.setEnabled(true);
 		getWorkgroups(username);
@@ -706,6 +848,9 @@ public class Dashboard {
 		}
 	}
 
+	/**
+	 * This method is used for displaying received file informations.
+	 */
 	public void receivedFilesActivity() {
 		refreshbtn.setEnabled(true);
 		getSharedFiles(username);
@@ -723,6 +868,9 @@ public class Dashboard {
 		});
 	}
 
+	/**
+	 * This method is used for displaying my files informations.
+	 */
 	public void myFilesActivity() {
 		scrollPane_2.setViewportView(table);
 		refreshbtn.setEnabled(true);
@@ -743,6 +891,9 @@ public class Dashboard {
 		});
 	}
 
+	/**
+	 * This method is used for displaying overall table informations.
+	 */
 	public void tableActivity() {
 		selectedrows = table.getSelectedRows();
 		selectedFileId = new ArrayList<String>();
@@ -779,7 +930,8 @@ public class Dashboard {
 
 		share.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				new ShareFile(username, emailList, selectedFileId, anonymous_url, share_expiration, share_value, share_unit, shareAcknowledgement);
+				new ShareFile(username, emailList, selectedFileId, anonymous_url, share_expiration, share_value,
+						share_unit, shareAcknowledgement);
 			}
 		});
 
@@ -856,6 +1008,9 @@ public class Dashboard {
 		table.setComponentPopupMenu(popupMenu);
 	}
 
+	/**
+	 * This method is used for getting unique id of the node.
+	 */
 	private String getStringPath(Object[] objects) {
 		StringBuilder stringPath = new StringBuilder();
 		for (Object obj : objects) {
@@ -864,6 +1019,9 @@ public class Dashboard {
 		return stringPath.toString();
 	}
 
+	/**
+	 * This method is used for displaying workgroup informations.
+	 */
 	public void workgroupActivity() {
 		scrollPane_2.setViewportView(table);
 		if (worktable != null) {
@@ -938,12 +1096,14 @@ public class Dashboard {
 		});
 	}
 
+	/**
+	 * This method is used for reloading of tree.
+	 */
 	public void reloadNodes(DefaultMutableTreeNode selectedNode2) {
 		if (tree.getModel() != null && tree.getModel() instanceof DefaultTreeModel) {
 			DefaultTreeModel sharedModel = (DefaultTreeModel) tree.getModel();
 			sharedModel.reload(sharedspace);
 			tree.expandPath(new TreePath(selectedNode2.getPath()));
-			// tree.expandPath(treePaths);
 		}
 	}
 

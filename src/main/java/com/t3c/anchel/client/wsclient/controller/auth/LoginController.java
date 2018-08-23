@@ -17,7 +17,6 @@ public class LoginController {
 			response.setResponseObject(new LoginService().authenticate(username, password, url));
 			response.setStatus(ApplicationConstants.getSuccess());
 		} catch (Exception e) {
-			// OUT.error();
 			e.printStackTrace();
 			response.setStatus(ApplicationConstants.getFailure());
 		}

@@ -20,13 +20,13 @@ public class LoginService
 
 	public Object authenticate(String username, String password, String url) throws IOException
 	{
-		OUT.debug("Authencation using username :" + username + " URL :" + url);
+		OUT.debug("Authencating using username :" + username + " URL :" + url);
 		StringBuilder urlBuffer = new StringBuilder();
 		urlBuffer.append(url);
 		urlBuffer.append(ApplicationConstants.LOGIN);
 		String authString = username + ":" + password;
 		String authStringEnc = Base64.getEncoder().encodeToString(authString.getBytes());
-		OUT.debug("Base64 encoded auth string: " + authStringEnc);
+		//OUT.debug("Base64 encoded auth string: " + authStringEnc);
 		Client restClient = Client.create();
 		WebResource webResource = restClient.resource(urlBuffer.toString());
 		ClientResponse resp = webResource.accept("application/json").header("Authorization", "Basic " + authStringEnc).get(ClientResponse.class);

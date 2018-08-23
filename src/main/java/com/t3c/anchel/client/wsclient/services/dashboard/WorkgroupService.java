@@ -17,6 +17,7 @@ import org.json.JSONObject;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.sun.jersey.api.client.Client;
@@ -73,8 +74,7 @@ public class WorkgroupService {
 		}
 		int fileSize1 = (int) file.length();
 		ClientResponse resp = null;
-		byte[] data_byte=null;
-		int part_size = 0;
+		byte[] data_byte = null;
 		int bytesRead;
 		if (fileSize1 > 1048576) {
 			int parts = fileSize1 / 1048576;
@@ -122,15 +122,17 @@ public class WorkgroupService {
 					.type("multipart/form-data").post(ClientResponse.class, multiPart);
 		}
 
-		if (resp.getStatus() == 200) {
+		JsonNode rootNode = mapper.readTree(resp.getEntity(String.class));
+		String lastChunk = rootNode.get("lastChunk").toString();
+		if (resp.getStatus() == 200 && lastChunk.equals("true")) {
 			OUT.info("File uploading is success");
 			response.setStatus(ApplicationConstants.getSuccess());
-			String str = resp.getEntity(String.class);
+			fis.close();
 			return response;
 		} else {
 			OUT.error("File upload is failed " + resp.getStatusInfo());
 			response.setStatus(ApplicationConstants.getFailure());
-			String str = resp.getEntity(String.class);
+			fis.close();
 			return response;
 		}
 	}
@@ -240,16 +242,18 @@ public class WorkgroupService {
 				.get(ClientResponse.class);
 		if (resp.getStatus() != 200) {
 			OUT.error("Unable to connect to the server");
+			throw new IOException();
+		} else {
+			String jsonString = resp.getEntity(String.class);
+			List<WorkGroupDTO> workGroupDTOs = mapper.readValue(jsonString, new TypeReference<List<WorkGroupDTO>>() {
+			});
+			if (restClient != null) {
+				restClient.destroy();
+			}
+			OUT.debug("Getting a workgroup folder details for user :" + username + " found :"
+					+ (workGroupDTOs.size() > 0 ? workGroupDTOs.size() : "NOT FOUND"));
+			return workGroupDTOs;
 		}
-		String jsonString = resp.getEntity(String.class);
-		List<WorkGroupDTO> workGroupDTOs = mapper.readValue(jsonString, new TypeReference<List<WorkGroupDTO>>() {
-		});
-		if (restClient != null) {
-			restClient.destroy();
-		}
-		OUT.debug("Getting a workgroup folder details for user :" + username + " found :"
-				+ (workGroupDTOs.size() > 0 ? workGroupDTOs.size() : "NOT FOUND"));
-		return workGroupDTOs;
 	}
 
 	public ResponseObject createWorkgroup(String workgroupName, String username) throws JSONException {
@@ -349,9 +353,9 @@ public class WorkgroupService {
 		urlBuffer.append(baseURL);
 		urlBuffer.append(ApplicationConstants.WORK_GROUP);
 
-		if(folderUuid == null || folderUuid.equals(" ")){
+		if (folderUuid == null || folderUuid.equals(" ")) {
 			urlBuffer.append("/" + workGroupUuid);
-		}else {
+		} else {
 			urlBuffer.append("/" + workGroupUuid);
 			urlBuffer.append("/nodes/" + folderUuid);
 		}
@@ -368,7 +372,7 @@ public class WorkgroupService {
 		}
 	}
 
-	public ResponseObject renameNode(String workGroupUuid, String folderUuid, String renameString, String username) {
+	public ResponseObject renameNode(String workGroupUuid, String folderUuid, String renameString, String username) throws IOException {
 		mapper = new ObjectMapper();
 		response = new ResponseObject();
 		urlBuffer = new StringBuilder();
@@ -400,7 +404,7 @@ public class WorkgroupService {
 				.type("application/json").put(ClientResponse.class, jsonInString);
 		if (resp.getStatus() != 200) {
 			OUT.error("File Renaming is Failed");
-			response.setStatus(ApplicationConstants.getFailure());
+			throw new IOException();
 		} else {
 			response.setStatus(ApplicationConstants.getSuccess());
 		}

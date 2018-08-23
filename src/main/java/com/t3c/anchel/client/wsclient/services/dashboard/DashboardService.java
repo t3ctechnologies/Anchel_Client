@@ -58,16 +58,18 @@ public class DashboardService {
 				.get(ClientResponse.class);
 		if (resp.getStatus() != 200) {
 			OUT.error("Unable to connect to the server");
+			throw new IOException();
+		} else {
+			String jsonString = resp.getEntity(String.class);
+			List<FileDetailsDTO> myFilesList = mapper.readValue(jsonString, new TypeReference<List<FileDetailsDTO>>() {
+			});
+			if (restClient != null) {
+				restClient.destroy();
+			}
+			OUT.debug("Getting a My file for user :" + username + " found :"
+					+ (myFilesList.size() > 0 ? myFilesList.size() : "NOT FOUND"));
+			return myFilesList;
 		}
-		String jsonString = resp.getEntity(String.class);
-		List<FileDetailsDTO> myFilesList = mapper.readValue(jsonString, new TypeReference<List<FileDetailsDTO>>() {
-		});
-		if (restClient != null) {
-			restClient.destroy();
-		}
-		OUT.debug("Getting a My file for user :" + username + " found :"
-				+ (myFilesList.size() > 0 ? myFilesList.size() : "NOT FOUND"));
-		return myFilesList;
 	}
 
 	public Object getReceivedFiles(String username) throws IOException {
@@ -87,16 +89,17 @@ public class DashboardService {
 		if (resp.getStatus() != 200) {
 			OUT.error("Unable to connect to the server");
 			throw new IOException();
+		} else {
+			String jsonString = resp.getEntity(String.class);
+			List<FileDetailsDTO> sharedFiles = mapper.readValue(jsonString, new TypeReference<List<FileDetailsDTO>>() {
+			});
+			if (restClient != null) {
+				restClient.destroy();
+			}
+			OUT.debug("Getting a file for user :" + username + " found :"
+					+ (sharedFiles.size() > 0 ? sharedFiles.size() : "NOT FOUND"));
+			return sharedFiles;
 		}
-		String jsonString = resp.getEntity(String.class);
-		List<FileDetailsDTO> sharedFiles = mapper.readValue(jsonString, new TypeReference<List<FileDetailsDTO>>() {
-		});
-		if (restClient != null) {
-			restClient.destroy();
-		}
-		OUT.debug("Getting a file for user :" + username + " found :"
-				+ (sharedFiles.size() > 0 ? sharedFiles.size() : "NOT FOUND"));
-		return sharedFiles;
 	}
 
 	public void deleteMyFiles(String groupuuid, String uuid, String username, String selectedNodeName)
@@ -214,7 +217,7 @@ public class DashboardService {
 	}
 
 	@SuppressWarnings("unchecked")
-	public ResponseObject uploadMyFiles(File fileToUpload, String username) {
+	public ResponseObject uploadMyFiles(File fileToUpload, String username) throws IOException {
 		mapper = new ObjectMapper();
 		response = new ResponseObject();
 		urlBuffer = new StringBuilder();
@@ -230,23 +233,15 @@ public class DashboardService {
 		Client restClient = Client.create(config);
 		WebResource webResource = restClient.resource(urlBuffer.toString());
 
-		// FileDataBodyPart fileDataBodyPart = new FileDataBodyPart("file",
-		// fileToUpload,
-		// MediaType.APPLICATION_OCTET_STREAM_TYPE);
-		// fileDataBodyPart.setContentDisposition(
-		// FormDataContentDisposition.name("file").fileName(fileToUpload.getName()).build());
-
 		FileInputStream fis = null;
 		FormDataBodyPart fileDataBodyPart;
 		ByteArrayInputStream bis;
 		int chunksize = 1048576;
-		try {
-			fis = new FileInputStream(fileToUpload);
-		} catch (FileNotFoundException e1) {
-			e1.printStackTrace();
-		}
+		fis = new FileInputStream(fileToUpload);
 		int fileSize1 = (int) fileToUpload.length();
 		ClientResponse resp = null;
+		byte[] data_byte = null;
+		int bytesRead;
 		if (fileSize1 > 1048576) {
 			int parts = fileSize1 / 1048576;
 			for (int i = 1; i <= parts; i++) {
@@ -254,29 +249,26 @@ public class DashboardService {
 					int remsize = fileSize1 - (1048576 * parts);
 					chunksize = 1048576 + remsize;
 				}
-				try {
-					int read = fis.read(new byte[chunksize]);
-					bis = new ByteArrayInputStream(new byte[read]);
-					fileDataBodyPart = new FormDataBodyPart("file", bis, MediaType.APPLICATION_OCTET_STREAM_TYPE);
-					final MultiPart multiPart = new FormDataMultiPart()
-							.field("flowChunkNumber", String.valueOf(i), MediaType.TEXT_PLAIN_TYPE)
-							.field("asyncTask", "true", MediaType.TEXT_PLAIN_TYPE)
-							.field("workGroupUuid", "", MediaType.TEXT_PLAIN_TYPE)
-							.field("workGroupParentNodeUuid", "", MediaType.TEXT_PLAIN_TYPE)
-							.field("flowChunkSize", "1048576", MediaType.TEXT_PLAIN_TYPE)
-							.field("flowTotalChunks", String.valueOf(parts), MediaType.TEXT_PLAIN_TYPE)
-							.field("flowIdentifier", identifier, MediaType.TEXT_PLAIN_TYPE)
-							.field("flowCurrentChunkSize", String.valueOf(chunksize), MediaType.TEXT_PLAIN_TYPE)
-							.field("flowTotalSize", fileSize, MediaType.TEXT_PLAIN_TYPE)
-							.field("flowFilename", fileName, MediaType.TEXT_PLAIN_TYPE)
-							.field("flowRelativePath", fileName, MediaType.TEXT_PLAIN_TYPE).bodyPart(fileDataBodyPart);
+				data_byte = new byte[chunksize];
+				bytesRead = fis.read(data_byte);
+				bis = new ByteArrayInputStream(data_byte, 0, bytesRead);
+				fileDataBodyPart = new FormDataBodyPart("file", bis, MediaType.APPLICATION_OCTET_STREAM_TYPE);
+				final MultiPart multiPart = new FormDataMultiPart()
+						.field("flowChunkNumber", String.valueOf(i), MediaType.TEXT_PLAIN_TYPE)
+						.field("asyncTask", "true", MediaType.TEXT_PLAIN_TYPE)
+						.field("workGroupUuid", "", MediaType.TEXT_PLAIN_TYPE)
+						.field("workGroupParentNodeUuid", "", MediaType.TEXT_PLAIN_TYPE)
+						.field("flowChunkSize", "1048576", MediaType.TEXT_PLAIN_TYPE)
+						.field("flowTotalChunks", String.valueOf(parts), MediaType.TEXT_PLAIN_TYPE)
+						.field("flowIdentifier", identifier, MediaType.TEXT_PLAIN_TYPE)
+						.field("flowCurrentChunkSize", String.valueOf(chunksize), MediaType.TEXT_PLAIN_TYPE)
+						.field("flowTotalSize", fileSize, MediaType.TEXT_PLAIN_TYPE)
+						.field("flowFilename", fileName, MediaType.TEXT_PLAIN_TYPE)
+						.field("flowRelativePath", fileName, MediaType.TEXT_PLAIN_TYPE).bodyPart(fileDataBodyPart);
 
-					resp = webResource.accept("application/json").header("Authorization", "Basic " + auth64)
-							.type("multipart/form-data").post(ClientResponse.class, multiPart);
+				resp = webResource.accept("application/json").header("Authorization", "Basic " + auth64)
+						.type("multipart/form-data").post(ClientResponse.class, multiPart);
 
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
 			}
 		} else {
 			fileDataBodyPart = new FormDataBodyPart("file", fis, MediaType.APPLICATION_OCTET_STREAM_TYPE);
@@ -295,16 +287,19 @@ public class DashboardService {
 			resp = webResource.accept("application/json").header("Authorization", "Basic " + auth64)
 					.type("multipart/form-data").post(ClientResponse.class, multiPart);
 		}
-
-		if (resp.getStatus() == 200) {
+		JsonNode rootNode = mapper.readTree(resp.getEntity(String.class));
+		String lastChunk = rootNode.get("lastChunk").toString();
+		if (resp.getStatus() == 200 && lastChunk.equals("true")) {
 			OUT.info("File uploading is success");
 			response.setStatus(ApplicationConstants.getSuccess());
+			fis.close();
+			return response;
 		} else {
 			OUT.error("File upload is failed " + resp.getStatusInfo());
 			response.setStatus(ApplicationConstants.getFailure());
+			fis.close();
+			return response;
 		}
-		String str = resp.getEntity(String.class);
-		return response;
 	}
 
 	public Object getFileActivity(JTableDto tableDto, String username) throws IOException, JSONException {
@@ -317,13 +312,13 @@ public class DashboardService {
 
 		urlBuffer.append(baseURL);
 		String workgroupID = tableDto.getWorkgroupId();
-		if(workgroupID == null || workgroupID.isEmpty()){
+		if (workgroupID == null || workgroupID.isEmpty()) {
 			urlBuffer.append(ApplicationConstants.MY_FILE);
 			urlBuffer.append("/" + tableDto.getUuid() + "/audit");
-		}else {
+		} else {
 			urlBuffer.append(ApplicationConstants.WORK_GROUP);
-			urlBuffer.append("/"+workgroupID+"/nodes/");
-			urlBuffer.append(tableDto.getUuid() +"/audit");
+			urlBuffer.append("/" + workgroupID + "/nodes/");
+			urlBuffer.append(tableDto.getUuid() + "/audit");
 		}
 		Client restClient = Client.create();
 		WebResource webResource = restClient.resource(urlBuffer.toString());
@@ -332,8 +327,7 @@ public class DashboardService {
 		if (resp.getStatus() != 200) {
 			OUT.error("Unable to connect to the server");
 			throw new IOException();
-		}
-		else {
+		} else {
 			String jsonString = resp.getEntity(String.class);
 			JsonNode rootNode = mapper.readTree(jsonString);
 			if (restClient != null) {

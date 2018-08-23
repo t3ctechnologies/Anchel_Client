@@ -12,16 +12,16 @@ public class FunctionalityController {
 	ResponseObject response = null;
 
 	public ResponseObject findAll(String username) {
-		OUT.info("Getting rolebased functionalities for user :" + username + " started.");
+		OUT.info("Getting rolebased functionalities for user : " + username + " is started.");
 		response = new ResponseObject();
 		try {
 			response.setResponseObject(new FunctionalityService().findAll(username));
 			response.setStatus(ApplicationConstants.getSuccess());
+			OUT.info("RESP:Getting rolebased functionalities completed.");
 		} catch (Exception e) {
 			OUT.error(e.getStackTrace());
 			response.setStatus(ApplicationConstants.getFailure());
 		}
-		OUT.info("RESP:Getting rolebased functionalities completed.");
 		return response;
 	}
 }

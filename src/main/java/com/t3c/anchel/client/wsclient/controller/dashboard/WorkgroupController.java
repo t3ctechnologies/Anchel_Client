@@ -25,11 +25,11 @@ public class WorkgroupController {
 		response = new ResponseObject();
 		try {
 			response = new WorkgroupService().uploadFiles(file, username, workGroupUuid, folderUuid);
+			OUT.info("RESP: Uploading files to workgroup with file name: " + file + " is completed.");
 		} catch (IOException e) {
-			e.printStackTrace();
 			OUT.error("Uploading files to workgroup with file name : " + file + " is failed.");
+			OUT.error(e.getStackTrace());
 		}
-		OUT.info("RESP: Uploading files to workgroup with file name: " + file + " is completed.");
 		return response;
 	}
 
@@ -38,11 +38,11 @@ public class WorkgroupController {
 		response = new ResponseObject();
 		try {
 			response = new WorkgroupService().copyFiles(groupid, fileid, parentid, username);
+			OUT.info("RESP: Copying files to workgroup with file id: " + fileid + " is completed.");
 		} catch (JSONException e) {
-			e.printStackTrace();
 			OUT.error("Copying files to workgroup with file id: " + fileid + " is failed.");
+			OUT.error(e.getStackTrace());
 		}
-		OUT.info("RESP: Copying files to workgroup with file id: " + fileid + " is completed.");
 		return response;
 	}
 
@@ -52,11 +52,11 @@ public class WorkgroupController {
 		try {
 			response.setResponseObject(new WorkgroupService().getWorkgroups(username));
 			response.setStatus(ApplicationConstants.getSuccess());
+			OUT.info("RESP: Getting WorkGroup Details for a user: " + username + " is completed.");
 		} catch (Exception e) {
 			OUT.error(e.getStackTrace());
 			response.setStatus(ApplicationConstants.getFailure());
 		}
-		OUT.info("RESP: Getting WorkGroup Details for a user: " + username + " is completed.");
 		return response;
 	}
 
@@ -66,11 +66,11 @@ public class WorkgroupController {
 		try {
 			response.setResponseObject(new WorkgroupService().getWorkgroupFolders(workGroupUuid, username));
 			response.setStatus(ApplicationConstants.getSuccess());
+			OUT.info("RESP: Getting WorkGroup Folder Details for a user: " + username + " is completed.");
 		} catch (Exception e) {
 			OUT.error(e.getStackTrace());
 			response.setStatus(ApplicationConstants.getFailure());
 		}
-		OUT.info("RESP: Getting WorkGroup Folder Details for a user: " + username + " is completed.");
 		return response;
 	}
 
@@ -80,11 +80,11 @@ public class WorkgroupController {
 		try {
 			response.setResponseObject(new WorkgroupService().getWorkgroupFiles(workGroupUuid, folderUuid, username));
 			response.setStatus(ApplicationConstants.getSuccess());
+			OUT.info("RESP: Getting WorkGroup File Details for a user: " + username + " is completed.");
 		} catch (Exception e) {
-			OUT.error(e.getStackTrace());
 			response.setStatus(ApplicationConstants.getFailure());
+			OUT.error(e.getStackTrace());
 		}
-		OUT.info("RESP: Getting WorkGroup File Details for a user: " + username + " is completed.");
 		return response;
 	}
 
@@ -93,11 +93,10 @@ public class WorkgroupController {
 		response = new ResponseObject();
 		try {
 			response = new WorkgroupService().createWorkgroup(workgroupName, username);
+			OUT.info("RESP:Creation of workgroup is completed.");
 		} catch (JSONException e) {
-			e.printStackTrace();
-			response.setStatus(ApplicationConstants.getFailure());
+			OUT.error(e.getStackTrace());
 		}
-		OUT.info("RESP:Creation of workgroup is completed.");
 		return response;
 	}
 
@@ -106,11 +105,11 @@ public class WorkgroupController {
 		response = new ResponseObject();
 		try {
 			response = new WorkgroupService().createFolder(folderName, group, parent, username);
+			OUT.info("RESP:Creation of folder is completed.");
 		} catch (JSONException e) {
-			e.printStackTrace();
 			response.setStatus(ApplicationConstants.getFailure());
+			OUT.error(e.getStackTrace());
 		}
-		OUT.info("RESP:Creation of folder is completed.");
 		return response;
 	}
 
@@ -119,6 +118,7 @@ public class WorkgroupController {
 		response = new ResponseObject();
 		try {
 			response.setResponseObject(new WorkgroupService().getParentID(workGroupUuid, username));
+			OUT.info("RESP:Getting parentid for a workgroup is completed.");
 		} catch (JSONException e) {
 			e.printStackTrace();
 			response.setStatus(ApplicationConstants.getFailure());
@@ -132,7 +132,6 @@ public class WorkgroupController {
 			e.printStackTrace();
 			response.setStatus(ApplicationConstants.getFailure());
 		}
-		OUT.info("RESP:Getting parentid for a workgroup is completed.");
 		return response;
 	}
 
@@ -142,19 +141,24 @@ public class WorkgroupController {
 			response = new ResponseObject();
 			new WorkgroupService().deleteNode(workGroupUuid, folderUuid, username);
 			response.setStatus(ApplicationConstants.getSuccess());
+			OUT.info("RESP:Deleting folder is completed.");
 		} catch (Exception e) {
-			OUT.error(e.getStackTrace());
 			response.setStatus(ApplicationConstants.getFailure());
+			OUT.error(e.getStackTrace());
 		}
-		OUT.info("RESP:Deleting folder is completed.");
 		return response;
 	}
 
 	public ResponseObject renameNode(String workGroupUuid, String folderUuid, String renameString, String username) {
 		OUT.info("Renaming workgroup node with a uuid: " + workGroupUuid + " is started.");
 		response = new ResponseObject();
-		response = new WorkgroupService().renameNode(workGroupUuid, folderUuid, renameString, username);
-		OUT.info("RESP:Renaming workgroup node is completed.");
+		try {
+			response = new WorkgroupService().renameNode(workGroupUuid, folderUuid, renameString, username);
+			OUT.info("RESP:Renaming workgroup node is completed.");
+		} catch (IOException e) {
+			response.setStatus(ApplicationConstants.getFailure());
+			OUT.error(e.getStackTrace());
+		}
 		return response;
 	}
 }

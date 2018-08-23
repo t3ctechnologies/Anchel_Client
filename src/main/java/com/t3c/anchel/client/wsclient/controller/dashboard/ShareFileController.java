@@ -13,30 +13,30 @@ public class ShareFileController {
 	ResponseObject response = null;
 
 	public ResponseObject getAllUsers(String username) {
-		OUT.info("Getting ldap users email id's started.");
+		OUT.info("Getting ldap users email id's  is started.");
 		response = new ResponseObject();
 		try {
 			response.setResponseObject(new ShareFileService().getAllUsers(username));
 			response.setStatus(ApplicationConstants.getSuccess());
+			OUT.info("RESP:Getting ldap users email id's is completed.");
 		} catch (Exception e) {
 			OUT.error(e.getStackTrace());
 			response.setStatus(ApplicationConstants.getFailure());
 		}
-		OUT.info("RESP:Getting ldap users email id's completed.");
 		return response;
 	}
 
 	public ResponseObject shareFile(ShareCreationDto shareDto, String username) {
-		OUT.info("Getting ldap users email id's started.");
+		OUT.info("File sharing is started.");
 		response = new ResponseObject();
 		try {
 			response.setResponseObject(new ShareFileService().shareFile(shareDto, username));
 			response.setStatus(ApplicationConstants.getSuccess());
+			OUT.info("RESP:File sharing is completed.");
 		} catch (Exception e) {
 			OUT.error(e.getStackTrace());
 			response.setStatus(ApplicationConstants.getFailure());
 		}
-		OUT.info("RESP:Getting ldap users email id's completed.");
 		return response;
 	}
 	
@@ -46,11 +46,11 @@ public class ShareFileController {
 		try {
 			response.setResponseObject(new ShareFileService().shareFileDetails(username, uuid));
 			response.setStatus(ApplicationConstants.getSuccess());
+			OUT.info("RESP:Getting shared file details is completed.");
 		} catch (Exception e) {
 			OUT.error(e.getStackTrace());
 			response.setStatus(ApplicationConstants.getFailure());
 		}
-		OUT.info("RESP:Getting shared file details is completed.");
 		return response;
 	}
 }

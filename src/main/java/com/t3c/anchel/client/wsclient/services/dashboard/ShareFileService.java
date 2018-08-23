@@ -46,18 +46,19 @@ public class ShareFileService {
 				.get(ClientResponse.class);
 		if (resp.getStatus() != 200) {
 			OUT.error("Unable to connect to the server");
+			throw new IOException();
+		} else {
+			String jsonString = resp.getEntity(String.class);
+			TypeReference<List<LdapUsersDto>> type = new TypeReference<List<LdapUsersDto>>() {
+			};
+			List<LdapUsersDto> emailList = mapper.readValue(jsonString, type);
+			if (restClient != null) {
+				restClient.destroy();
+			}
+			OUT.debug("Getting a ldap user email id's for user :" + username + " found :"
+					+ (emailList.size() > 0 ? emailList.size() : "NOT FOUND"));
+			return emailList;
 		}
-		String jsonString = resp.getEntity(String.class);
-
-		TypeReference<List<LdapUsersDto>> type = new TypeReference<List<LdapUsersDto>>() {
-		};
-		List<LdapUsersDto> emailList = mapper.readValue(jsonString, type);
-		if (restClient != null) {
-			restClient.destroy();
-		}
-		OUT.debug("Getting a ldap user email id's for user :" + username + " found :"
-				+ (emailList.size() > 0 ? emailList.size() : "NOT FOUND"));
-		return emailList;
 	}
 
 	public Object shareFile(ShareCreationDto shareDto, String username)

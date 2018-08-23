@@ -180,6 +180,7 @@ public class ShareFile {
 		});
 		shareButton.setBounds(35, 351, 89, 23);
 		panel.add(shareButton);
+		panel.getRootPane().setDefaultButton(shareButton);
 
 		JButton cancelButton = new JButton("Cancel");
 		cancelButton.addActionListener(new ActionListener() {

@@ -41,18 +41,19 @@ public class FunctionalityService {
 				.get(ClientResponse.class);
 		if (resp.getStatus() != 200) {
 			OUT.error("Unable to connect to the server");
+			throw new IOException();
+		} else {
+			String jsonString = resp.getEntity(String.class);
+			TypeReference<List<FunctionalityDto>> mapType = new TypeReference<List<FunctionalityDto>>() {
+			};
+			List<FunctionalityDto> funList = mapper.readValue(jsonString, mapType);
+			if (restClient != null) {
+				restClient.destroy();
+			}
+			OUT.debug("Getting a rolebased functionalities for user :" + username + " found :"
+					+ (funList.size() > 0 ? funList.size() : "NOT FOUND"));
+			return funList;
 		}
-		String jsonString = resp.getEntity(String.class);
-
-		TypeReference<List<FunctionalityDto>> mapType = new TypeReference<List<FunctionalityDto>>() {
-		};
-		List<FunctionalityDto> funList = mapper.readValue(jsonString, mapType);
-		if (restClient != null) {
-			restClient.destroy();
-		}
-		OUT.debug("Getting a rolebased functionalities for user :" + username + " found :"
-				+ (funList.size() > 0 ? funList.size() : "NOT FOUND"));
-		return funList;
 	}
 
 }
